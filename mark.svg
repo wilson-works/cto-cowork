@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="James and John's Coworking Space">
   <title>James and John's Coworking Space</title>
-  <rect width="64" height="64" rx="12" fill="#E4E2DD"/>
-  <polygon points="22,12 36,19 22,26 8,19" fill="#4A62D8"/>
-  <polygon points="8,19 22,26 22,40 8,33" fill="#2B45C4"/>
-  <polygon points="22,26 36,19 36,33 22,40" fill="#1F3496"/>
-  <polygon points="42,22 56,29 42,36 28,29" fill="#F08A4B"/>
-  <polygon points="28,29 42,36 42,50 28,43" fill="#E2601A"/>
-  <polygon points="42,36 56,29 56,43 42,50" fill="#B84A12"/>
+  <rect width="64" height="64" rx="14" fill="#CBD9D3"/>
+  <polygon points="22,12 36,19 22,26 8,19" fill="#4F8A84"/>
+  <polygon points="8,19 22,26 22,40 8,33" fill="#2E6B66"/>
+  <polygon points="22,26 36,19 36,33 22,40" fill="#22504C"/>
+  <polygon points="42,22 56,29 42,36 28,29" fill="#E8A77E"/>
+  <polygon points="28,29 42,36 42,50 28,43" fill="#D9895B"/>
+  <polygon points="42,36 56,29 56,43 42,50" fill="#B8693F"/>
 </svg>

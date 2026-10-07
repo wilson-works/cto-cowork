@@ -5,14 +5,14 @@
   const token = document.querySelector('meta[name="cowork-token"]').content;
   const $ = (id) => document.getElementById(id);
   const JOKES = [
-    'James: "Short version first. Then we earn the long one."',
-    'John: "Show me the diff. Then show me the test that fails without it."',
-    'James: "Every lane gets a DONE-WHEN. No exceptions, John."',
-    'John: "No exceptions. Except the ones I catch."',
-    'James: "We plan it. You paste it. Nobody starts a lane behind your back."',
+    'James: "Easy does it. One lane at a time, and every lane gets a DONE-WHEN."',
+    'John: "Relax. I read the diff. Twice."',
+    'James: "Short version first. Then we earn the long one. We move."',
+    'John: "Smallest correct change. Then coffee."',
+    'James: "We plan it, you paste it. Nobody starts a lane behind your back."',
     'John: "Two lanes in one file is how Tuesdays get long."',
-    'James: "The gate grades the work. We don\'t grade our own homework."',
-    'John: "I read the merge before I trust it. Every time."',
+    'James: "The gate grades the work. We don't grade our own homework."',
+    'John: "Clean diff, clean conscience."',
   ];
   const open = new Set();
   let busy = false;

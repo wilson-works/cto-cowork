@@ -77,7 +77,13 @@ function blocksOf(md) {
   return blocks;
 }
 
-const flagsOf = (...texts) => HELD.map((re, i) => (texts.some((t) => re.test(t)) ? HELD_NAMES[i] : null)).filter(Boolean);
+// A line that forbids or holds the act ("never deploy", "Railway is HELD") is a fence, not an ask: it raises no flag.
+// Measured on CWT1006-2251: without this every prompt's fences flagged six words and the flag meant nothing.
+const FORBIDS = /\b(never|not|no|nothing|don't|do not|nor|without|held|refuse[sd]?|forbid\w*|unless|off-limits|outside)\b/i;
+const flagsOf = (...texts) => {
+  const lines = texts.join('\n').split(/\r?\n/).filter((l) => !FORBIDS.test(l));
+  return HELD.map((re, i) => (lines.some((l) => re.test(l)) ? HELD_NAMES[i] : null)).filter(Boolean);
+};
 
 function check(runDir, o) {
   let names;
