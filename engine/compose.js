@@ -15,6 +15,8 @@
  * The flags (ARGS), set with Victor (VP AI) and John (Chief Engineer), 2026-10-06:
  *   --restricted                 removes Bash/PowerShell/WebFetch unless --tools names them, ignores every settings
  *                                file (user, project, local), and confines the file tools to the working folders
+ *   --strict-mcp-config          no MCP servers at all: without it the claude.ai connectors (Canva, Calendar, Drive,
+ *                                with their write tools) were in the run's tool list (fence drill, 2026-10-06 22:48 CDT)
  *   --tools                      Read Glob Grep Edit Write Bash Agent, and nothing else
  *   --permission-prompts none    anything that would ask is refused at once; nobody is there to answer
  *   (permission mode default)    so a file write is allowed only by the one Edit rule below, never by acceptEdits
@@ -153,7 +155,7 @@ function args(o) {
   return [
     '-p', message(o),
     '--append-system-prompt', systemPrompt({ capMs: cfg.capMs }),
-    '--restricted',
+    '--restricted', '--strict-mcp-config',
     '--tools', 'Read', 'Glob', 'Grep', 'Edit', 'Write', 'Bash', 'Agent',
     '--permission-prompts', 'none',
     '--model', cfg.model, '--effort', cfg.effort,

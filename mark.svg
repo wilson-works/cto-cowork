@@ -1,10 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="James and John's Coworking Space">
   <title>James and John's Coworking Space</title>
-  <rect width="64" height="64" rx="12" fill="#E4E2DD"/>
-  <polygon points="22,12 36,19 22,26 8,19" fill="#4A62D8"/>
-  <polygon points="8,19 22,26 22,40 8,33" fill="#2B45C4"/>
-  <polygon points="22,26 36,19 36,33 22,40" fill="#1F3496"/>
-  <polygon points="42,22 56,29 42,36 28,29" fill="#F08A4B"/>
-  <polygon points="28,29 42,36 42,50 28,43" fill="#E2601A"/>
-  <polygon points="42,36 56,29 56,43 42,50" fill="#B84A12"/>
+  <!-- Drawn by art/build.py from the scenes' own shapes. Two colleagues side by side, each in their own half. -->
+  <defs><clipPath id="cw-mark"><rect width="64" height="64" rx="14"/></clipPath></defs>
+  <rect width="64" height="64" rx="14" fill="#CBD9D3"/>
+  <g clip-path="url(#cw-mark)">
+  <g transform="translate(16 121) scale(0.5)" stroke="#141414" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-30,-162 C-34,-140 -32,-120 -30,-100 L26,-100 C28,-120 30,-140 26,-162 C14,-168 -18,-168 -30,-162 Z" fill="#D5D9DD"/>
+    <path d="M10,-166 C24,-162 30,-140 26,-100 L10,-100 C13,-126 14,-146 10,-166 Z" fill="#A9B1B9" stroke="none"/>
+    <path d="M-30,-162 C-34,-140 -32,-120 -30,-100 L26,-100 C28,-120 30,-140 26,-162 C14,-168 -18,-168 -30,-162 Z" fill="none"/>
+    <path d="M-7,-164 L0,-138 L7,-164 Z" fill="#F7F7F5"/>
+    <path d="M-5,-171 L5,-171 L6,-158 L-6,-158 Z" fill="#D6A07C"/>
+    <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="#D6A07C"/>
+    <path d="M5,-201 C12,-199 13,-191 12,-181 C10,-174 6,-171 3,-170 C7,-179 8,-191 5,-201 Z" fill="#B57F5C" stroke="none"/>
+    <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="none"/>
+    <path d="M-13,-194 C-16,-214 6,-221 14,-206 C15,-201 14,-197 13,-193 C10,-202 2,-206 -5,-204 C-9,-201 -11,-198 -13,-194 Z" fill="#2E2724"/>
+    <path d="M-10,-197 Q-5.5,-199.5 -1,-197 M2,-197 Q6.5,-199.5 11,-197" fill="none" stroke-width="1.8"/>
+    <circle cx="-5" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="6" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="-5" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
+    <circle cx="6" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
+    <path d="M-0.4,-190.5 L1.4,-190.5" fill="none" stroke-width="1.5"/>
+    <path d="M1,-187 L-1,-182 L2,-181.5" fill="none" stroke-width="1.3"/>
+    <path d="M-4,-177 Q1,-173 6,-177" fill="none" stroke-width="1.7"/>
+  </g>
+  <g transform="translate(-157 -81) scale(0.58)" stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M326,212 C322,232 324,250 326,262 L380,262 C382,250 384,232 380,212 C368,202 338,202 326,212 Z" fill="#3B4A4A"/>
+    <path d="M361,205 C376,208 382,216 380,232 C379,246 380,254 380,262 L362,262 C365,243 366,222 361,205 Z" fill="#263131" stroke="none"/>
+    <path d="M326,212 C322,232 324,250 326,262 L380,262 C382,250 384,232 380,212 C368,202 338,202 326,212 Z" fill="none"/>
+    <path d="M344,205 L352,215 L360,205" fill="none" stroke-width="1.6"/>
+    <path d="M347,197 L358,197 L359,207 L346,207 Z" fill="#9C6B4E"/>
+    <path d="M338,180 C337,165 368,163 368,180 L367,190 C366,200 360,205 353,205 C346,205 339,200 338,190 Z" fill="#9C6B4E"/>
+    <path d="M360,168 C367,171 368,178 368,184 L367,192 C365,199 362,202 358,204 C362,194 363,180 360,168 Z" fill="#7E5338" stroke="none"/>
+    <path d="M338,186 C338,200 345,207 353,207 C361,207 368,200 368,186 C366,192 362,195 360,195 L346,195 C343,195 340,192 338,186 Z" fill="#231C18"/>
+    <path d="M346,192 Q353,188.5 360,192 Q353,194.5 346,192 Z" fill="#231C18" stroke-width="1"/>
+    <path d="M338,181 C336,164 368,160 368,180 C364,172 354,170 346,172 C342,174 340,177 338,181 Z" fill="#1A1614"/>
+    <path d="M353,183 L351,189 L355,189.5" fill="none" stroke-width="1.2"/>
+    <path d="M343,176 L350,175.5 M356,175.5 L363,176" fill="none" stroke-width="2.4"/>
+    <ellipse cx="347" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/><ellipse cx="359" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/>
+    <path d="M349,199.5 Q353.5,202 358,199" fill="none" stroke="#E9D9CB" stroke-width="1.5"/>
+  </g>
+  <path d="M32,6 L32,64" stroke="#141414" stroke-width="1.5"/>
+  </g>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="none" stroke="#141414" stroke-width="1.5"/>
 </svg>

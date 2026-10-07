@@ -12,7 +12,7 @@
  *     "hub": "D:\\Hub",                   else the first of D:\Hub, C:\Hub that holds CLAUDE.md
  *     "fleet_ops": "<hub>\\50-AI\\fleet-ops",
  *     "rigs": "D:\\tmp\\rigs",            where each run's staging folder goes (else <hub drive>\tmp\rigs)
- *     "claude": "<path to claude.exe>",   else claude.exe or claude.cmd on the PATH
+ *     "claude": "<path to claude.exe>",   else the VS Code extension's newest, else claude.exe or claude.cmd on the PATH
  *     "model": "claude-opus-5-5", "effort": "high", "cap_minutes": 40
  *   }
  * The code zone is found by probing both of the Hub's names for it (20-Coding\Projects on HQ, 20-Coding\Active on
@@ -47,9 +47,29 @@ function codeZoneOf(hub) {
   return null;
 }
 
-/** Claude Code: an .exe runs as it is; npm's claude.cmd is read for the claude.exe it starts (never run through cmd). */
+/** The newest Claude Code the VS Code extension carries (it updates itself; the npm one on the PATH may lag), or null. */
+function extensionClaude() {
+  const root = path.join(os.homedir(), '.vscode', 'extensions');
+  let names = [];
+  try { names = fs.readdirSync(root).filter((n) => /^anthropic\.claude-code-\d+\.\d+\.\d+/.test(n)); } catch (_) { return null; }
+  const ver = (n) => /(\d+)\.(\d+)\.(\d+)/.exec(n).slice(1).map(Number);
+  names.sort((a, b) => { const x = ver(a); const y = ver(b); return (y[0] - x[0]) || (y[1] - x[1]) || (y[2] - x[2]); });
+  for (const n of names) {
+    const exe = path.join(root, n, 'resources', 'native-binary', process.platform === 'win32' ? 'claude.exe' : 'claude');
+    if (isFile(exe)) return exe;
+  }
+  return null;
+}
+
+/**
+ * Claude Code: the configured path; else the VS Code extension's own (measured 2026-10-06: the npm claude on HQ's PATH
+ * was 2.1.263, and Opus 5.5 needs 2.1.280 or newer, while the extension carried 2.1.289); else the PATH. An .exe runs as
+ * it is; npm's claude.cmd is read for the claude.exe it starts (never run through cmd).
+ */
 function findClaude(configured) {
   if (configured) return isFile(configured) ? path.resolve(configured) : null;
+  const ext = extensionClaude();
+  if (ext) return ext;
   const dirs = String(process.env.PATH || process.env.Path || '').split(path.delimiter).filter(Boolean);
   dirs.push(path.join(os.homedir(), '.local', 'bin'));
   for (const d of dirs) {

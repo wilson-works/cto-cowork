@@ -1,12 +1,14 @@
-/* James and John's Coworking Space: a concrete studio for two engineers (kit from Gavin, 2026-10-06).
-   bg concrete, panel paper-white, ink graphite, cobalt for the one action, safety orange as a shape only (never text:
-   2.7:1 on concrete). Labels in a monospace, like label-maker tape; words in the system sans. No accent stripes. */
+/* James and John's Coworking Space. Owner 2026-10-06: "like Cheech and Chong meets corporate world. so clean and
+   collected, but cool and calming." Kit (Gavin, revised that night): deep eucalyptus bg, near-white panel, deep green
+   ink, calm teal for the one action (as text only on the panel, 5.66:1; white on it 6.16:1), sunset clay as a glow and
+   a shape only (2.24:1 on bg: never text, never a signal). System type, light display weight. No accent stripes.
+   ink on bg 10.2:1, on panel 14.3:1; muted ink on bg 4.96:1. */
 :root {
-  --bg: #E4E2DD; --panel: #F4F3F0; --ink: #1C1F24; --ink-2: #4A4F57; --line: #C9C6BF;
-  --cobalt: #2B45C4; --cobalt-ink: #FFFFFF; --orange: #E2601A; --steel: #8B9098;
-  --mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "SF Mono", Consolas, monospace;
-  --sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --r: 6px;
+  --bg: #CBD9D3; --panel: #F3F6F4; --ink: #1E2A2A; --ink-2: #4B5A57; --line: #B4C6BE;
+  --cobalt: #2E6B66; --cobalt-ink: #FFFFFF; --orange: #D9895B; --steel: #7E918A;
+  --mono: "Segoe UI Variable Display", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --sans: "Segoe UI Variable Text", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --r: 10px;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -15,15 +17,43 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(-
 .top { display: flex; gap: 14px; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .mark { flex: none; }
 .plate { min-width: 0; }
-h1 { margin: 0; font: 600 1.25rem/1.25 var(--mono); letter-spacing: .01em; }
+h1 { margin: 0; font: 300 1.5rem/1.2 var(--mono); letter-spacing: -.01em; }
 .line { margin: 2px 0 0; color: var(--ink-2); font-size: .95rem; }
 .room { display: grid; grid-template-columns: minmax(320px, 380px) minmax(0, 1fr); gap: 24px; padding: 24px; max-width: 1240px; margin: 0 auto; }
 .desk, .runs { min-width: 0; }
 .desk { position: sticky; top: 16px; align-self: start; }
-.scene { margin: 0 0 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-.scene img { display: block; width: 100%; height: auto; }
-.tape { display: inline-block; margin: 0 0 10px; padding: 3px 10px; font: 600 .8rem/1.4 var(--mono); text-transform: uppercase;
-  letter-spacing: .08em; color: var(--cobalt-ink); background: var(--cobalt); border-radius: 3px; transform: rotate(-.6deg); }
+.stage { max-width: 1240px; margin: 0 auto; padding: 24px 24px 0; }
+.scene-box { max-width: 860px; margin: 0 auto; }
+.scene { position: relative; aspect-ratio: 640 / 400; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.scene > img { display: block; width: 100%; height: auto; }
+.scene .layer { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; }
+.scene .layer.is-in { opacity: 1; }
+.scene .layer svg { display: block; width: 100%; height: 100%; }
+#scene-cap { margin: 6px 2px 0; color: var(--ink-2); font-size: .9rem; }
+/* What moves (classes from art/build.py). Tim walks in and talks; marker and pencil move; John nods his point home;
+   the flowchart draws itself again and again while James is at the board. Reduced motion: every scene holds still. */
+.scene .tim { animation: cw-walk 1.8s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes cw-walk { from { transform: translateX(-150px); } to { transform: none; } }
+.scene .bubble { transform-box: fill-box; transform-origin: 50% 100%; animation: cw-pop .45s .4s both; }
+.scene .tim + .bubble { animation-delay: 1.8s; }
+@keyframes cw-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+.scene .scribble { transform-box: fill-box; transform-origin: 90% 10%; animation: cw-scribble .9s ease-in-out infinite alternate; }
+@keyframes cw-scribble { from { transform: rotate(-3deg); } to { transform: rotate(3deg) translate(1px, -1px); } }
+.scene .nod { transform-box: fill-box; transform-origin: 0% 100%; animation: cw-nod 1.4s ease-in-out infinite alternate; }
+@keyframes cw-nod { to { transform: rotate(-7deg); } }
+.scene .wave { transform-box: fill-box; transform-origin: 100% 50%; animation: cw-wave .5s ease-in-out 1.9s 4 alternate; }
+@keyframes cw-wave { to { transform: rotate(-10deg); } }
+.scene .draw { stroke-dasharray: 160; stroke-dashoffset: 160; animation: cw-draw 10s ease-in-out infinite; }
+.scene .draw.d2 { animation-delay: .5s; } .scene .draw.d3 { animation-delay: 1s; } .scene .draw.d4 { animation-delay: 1.5s; }
+.scene .draw.d5 { animation-delay: 2s; } .scene .draw.d6 { animation-delay: 2.5s; } .scene .draw.d7 { animation-delay: 3s; }
+.scene .draw.d8 { animation-delay: 3.5s; } .scene .draw.d9 { animation-delay: 4s; } .scene .draw.d10 { animation-delay: 4.5s; }
+@keyframes cw-draw { 0% { stroke-dashoffset: 160; } 20% { stroke-dashoffset: 0; } 88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 160; } }
+@media (prefers-reduced-motion: reduce) {
+  .scene *, .scene .layer { animation: none !important; transition: none !important; }
+  .scene .draw { stroke-dashoffset: 0; }
+}
+.tape { display: inline-block; margin: 0 0 10px; padding: 3px 12px; font: 600 .78rem/1.4 var(--mono); text-transform: uppercase;
+  letter-spacing: .1em; color: var(--cobalt-ink); background: var(--cobalt); border-radius: 999px; }
 form { display: grid; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
 label { font-weight: 600; }
 textarea { width: 100%; min-height: 9rem; resize: vertical; padding: 10px 12px; font: 16px/1.45 var(--sans); color: var(--ink);
@@ -38,8 +68,8 @@ button { font: 600 1rem/1 var(--sans); min-height: 44px; padding: 0 18px; border
 .hint { margin: 0; color: var(--ink-2); font-size: .95rem; }
 .now { margin-top: 12px; display: grid; gap: 8px; }
 .card { margin: 0; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); }
-.tag { display: inline-block; padding: 1px 8px; font: 700 .75rem/1.6 var(--mono); letter-spacing: .08em; color: var(--ink); background: var(--orange); border-radius: 3px; }
-.joke { margin: 14px 2px 0; color: var(--ink-2); font: .9rem/1.45 var(--mono); }
+.tag { display: inline-block; padding: 1px 10px; font: 700 .75rem/1.6 var(--mono); letter-spacing: .08em; color: var(--ink); background: var(--orange); border-radius: 999px; }
+.joke { margin: 14px 2px 0; color: var(--ink-2); font: italic .95rem/1.45 var(--sans); }
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .run { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); min-width: 0; }
 .run-head { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: baseline; text-align: left;
@@ -47,7 +77,7 @@ button { font: 600 1rem/1 var(--sans); min-height: 44px; padding: 0 18px; border
 .status { display: inline-flex; gap: 6px; align-items: baseline; font: 600 .8rem/1.4 var(--mono); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
 .shape { font-size: .9rem; }
 .is-running .shape, .is-starting .shape { color: var(--cobalt); }
-.is-failed .shape { color: #A33A0B; }
+.is-failed .shape { color: #8A3B1C; }
 .what { font-weight: 600; overflow-wrap: anywhere; }
 .when { grid-column: 2; color: var(--ink-2); font: .8rem/1.4 var(--mono); overflow-wrap: anywhere; }
 .run-body { padding: 0 14px 14px; display: grid; gap: 10px; min-width: 0; }
@@ -56,13 +86,13 @@ button { font: 600 1rem/1 var(--sans); min-height: 44px; padding: 0 18px; border
 .block-bar { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 6px 6px 6px 12px; border-bottom: 1px solid var(--line); }
 .block-bar h3 { margin: 0; font: 600 .9rem/1.3 var(--mono); min-width: 0; overflow-wrap: anywhere; }
 .copy { flex: none; min-width: 72px; color: var(--cobalt-ink); background: var(--cobalt); border: 0; }
-.flags { margin: 0; padding: 6px 12px; font-size: .85rem; color: var(--ink); background: #F6E6DA; }
-pre { margin: 0; padding: 10px 12px; max-height: 50vh; overflow: auto; font: .85rem/1.5 var(--mono); white-space: pre; }
+.flags { margin: 0; padding: 6px 12px; font-size: .85rem; color: var(--ink); background: #F6E3D3; }
+pre { margin: 0; padding: 10px 12px; max-height: 50vh; overflow: auto; font: .85rem/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace; white-space: pre; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 899px) {
   .room { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 18px; }
+  .stage { padding: 16px 16px 0; }
   .desk { position: static; }
   .top { padding: 14px 16px; }
   #go { width: 100%; }
-  .scene { max-height: 220px; }
 }

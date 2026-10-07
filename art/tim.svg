@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="James stands easy by the run board with a coffee; John is on the sofa reading a diff. Dinner waits on the coffee table in takeout boxes.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Tim walks in with a new direction on his tablet: &quot;Hey James! Hey John! New one from Patrick.&quot; They both look up.">
   <title>James and John's Coworking Space</title>
-  <!-- Scene "idle". Drawn by art/build.py; edit that, not this file. -->
+  <!-- Scene "tim". Drawn by art/build.py; edit that, not this file. -->
   <rect width="640" height="400" fill="#CBD9D3"/>
   <polygon points="20,350 320,200 320,20 20,170" fill="#DCE5E0"/>
   <polygon points="320,200 620,350 620,170 320,20" fill="#C6D3CD"/>
@@ -60,10 +60,9 @@
     <path d="M346,192 Q353,188.5 360,192 Q353,194.5 346,192 Z" fill="#231C18" stroke-width="1"/>
     <path d="M338,181 C336,164 368,160 368,180 C364,172 354,170 346,172 C342,174 340,177 338,181 Z" fill="#1A1614"/>
     <path d="M353,183 L351,189 L355,189.5" fill="none" stroke-width="1.2"/>
-    <path d="M343,177.5 L350,176.5 M356,176.5 L363,177.5" fill="none" stroke-width="2.4"/>
-    <path d="M343.5,181.5 L350.5,181.5 M355.5,181.5 L362.5,181.5" fill="none" stroke-width="1.8"/>
-    <circle cx="347.5" cy="183.6" r="1.5" fill="#141414" stroke="none"/><circle cx="359" cy="183.6" r="1.5" fill="#141414" stroke="none"/>
-    <path d="M351,199.8 Q354,200.6 357,199.4" fill="none" stroke="#E9D9CB" stroke-width="1.3"/>
+    <path d="M343,176 L350,175.5 M356,175.5 L363,176" fill="none" stroke-width="2.4"/>
+    <ellipse cx="345.4" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/><ellipse cx="357.4" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/>
+    <path d="M349,199.5 Q353.5,202 358,199" fill="none" stroke="#E9D9CB" stroke-width="1.5"/>
     <path d="M336,256 C326,262 312,266 302,270 L306,286 C318,282 330,280 344,276 L370,262 L368,256 Z" fill="#A5A992"/>
     <path d="M306,286 C318,282 330,280 344,276 L370,262 L370,268 L346,282 C332,286 318,288 308,292 Z" fill="#868A74"/>
     <path d="M300,258 L330,268 L322,280 L292,270 Z" fill="#1E2A2A"/>
@@ -110,7 +109,7 @@
     <path d="M-7,-161 L0,-136 L7,-161 Z" fill="#F7F7F5"/>
     <path d="M-7,-161 L-2,-118 M7,-161 L2,-118" fill="none" stroke-width="1.6"/>
     <circle cx="0" cy="-110" r="1.6" fill="#141414" stroke="none"/>
-    <g transform="rotate(0 -22 -148)"><g>
+    <g transform="rotate(-6 -22 -148)"><g class="wave">
     <path d="M-22,-156 C-34,-153 -46,-146 -58,-150 L-60,-141 C-48,-137 -36,-141 -22,-140 Z" fill="#D5D9DD"/>
     <path d="M-60,-153 C-68,-158 -74,-156 -72,-150 C-74,-146 -68,-140 -60,-141 Z" fill="#D6A07C"/>
     
@@ -126,12 +125,49 @@
     <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="none"/>
     <path d="M-13,-194 C-16,-214 6,-221 14,-206 C15,-201 14,-197 13,-193 C10,-202 2,-206 -5,-204 C-9,-201 -11,-198 -13,-194 Z" fill="#2E2724"/>
     <path d="M-10,-197 Q-5.5,-199.5 -1,-197 M2,-197 Q6.5,-199.5 11,-197" fill="none" stroke-width="1.8"/>
-    <circle cx="-5" cy="-190" r="1.4" fill="#141414" stroke="none"/>
-    <circle cx="6" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="-6.4" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="4.6" cy="-190" r="1.4" fill="#141414" stroke="none"/>
     <circle cx="-5" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
     <circle cx="6" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
     <path d="M-0.4,-190.5 L1.4,-190.5" fill="none" stroke-width="1.5"/>
     <path d="M1,-187 L-1,-182 L2,-181.5" fill="none" stroke-width="1.3"/>
     <path d="M-4,-177 Q1,-173 6,-177" fill="none" stroke-width="1.7"/>
+  </g>
+  <g class="tim">
+  <ellipse cx="66" cy="368" rx="22" ry="7" fill="#D5CBBB"/>
+  <g transform="translate(66 368) scale(0.8)" stroke="#141414" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-15,-90 C-17,-58 -16,-30 -16,-6 L-5,-6 C-4,-34 -2,-60 0,-88 Z" fill="#4E5A73"/>
+    <path d="M0,-88 C3,-62 8,-34 12,-6 L23,-7 C19,-34 15,-62 13,-90 Z" fill="#3B455A"/>
+    <path d="M-19,-7 C-24,-6 -28,-1 -23,1 L-4,1 L-4,-7 Z" fill="#6B4A32"/>
+    <path d="M10,-7 L10,1 L29,1 C33,-1 29,-6 23,-7 Z" fill="#6B4A32"/>
+    <path d="M-23,-150 C-30,-130 -27,-104 -22,-82 L22,-82 C27,-104 30,-130 23,-150 C12,-157 -12,-157 -23,-150 Z" fill="#E7D8B9"/>
+    <path d="M9,-155 C22,-150 28,-128 24,-104 C23,-96 22,-89 22,-82 L10,-82 C13,-106 14,-134 9,-155 Z" fill="#CDBB96" stroke="none"/>
+    <path d="M-23,-150 C-30,-130 -27,-104 -22,-82 L22,-82 C27,-104 30,-130 23,-150 C12,-157 -12,-157 -23,-150 Z" fill="none"/>
+    <path d="M-8,-154 L0,-128 L8,-154 Z" fill="#9CC1E0"/>
+    <path d="M-8,-154 L-3,-100 M8,-154 L3,-100" fill="none" stroke-width="1.6"/>
+    <path d="M-3,-128 L-6,-112 L-1,-112 Z" fill="#2E6B66" stroke-width="1.2"/>
+    <rect x="-17" y="-122" width="9" height="12" rx="1.5" fill="#FFFFFF" stroke-width="1.2"/>
+    <path d="M-13,-122 L-9,-140" fill="none" stroke="#2E6B66" stroke-width="1.2"/>
+    <path d="M20,-148 C30,-140 34,-124 30,-110 C24,-108 18,-110 12,-112 L12,-120 C18,-119 22,-119 24,-121 C24,-132 22,-140 16,-146 Z" fill="#CDBB96"/>
+    <path d="M2,-132 L22,-124 L16,-108 L-4,-116 Z" fill="#1E2A2A"/>
+    <path d="M4,-129 L20,-122.5 L15,-111 L-1,-117.5 Z" fill="#F3DCC8" stroke="none"/>
+    <path d="M10,-118 C14,-121 18,-118 16,-114 C14,-111 10,-112 10,-115 Z" fill="#E2B48F" stroke-width="1.6"/>
+    <path d="M-22,-148 C-32,-140 -38,-126 -36,-112 L-28,-110 C-29,-122 -26,-134 -18,-142 Z" fill="#E7D8B9"/>
+    <path d="M-36,-112 C-38,-106 -36,-102 -32,-102 C-28,-102 -27,-106 -28,-110 Z" fill="#E2B48F" stroke-width="1.6"/>
+    <path d="M-5,-163 L5,-163 L6,-150 L-6,-150 Z" fill="#E2B48F"/>
+    <path d="M-13,-186 C-14,-201 13,-203 14,-186 L13,-174 C11,-166 5,-162 0,-162 C-6,-162 -12,-167 -13,-174 Z" fill="#E2B48F"/>
+    <path d="M6,-191 C13,-188 14,-181 13,-174 C11,-168 7,-164 3,-163 C8,-171 9,-182 6,-191 Z" fill="#C99572" stroke="none"/>
+    <path d="M-13,-186 C-14,-201 13,-203 14,-186 L13,-174 C11,-166 5,-162 0,-162 C-6,-162 -12,-167 -13,-174 Z" fill="none"/>
+    <path d="M-15,-184 C-20,-192 -16,-204 -8,-206 C-6,-212 6,-213 9,-207 C17,-207 20,-196 16,-186 C14,-193 10,-197 4,-197 C-2,-197 -10,-194 -15,-184 Z" fill="#6B3E26"/>
+    <path d="M-9,-188 Q-5,-191 -1,-188 M3,-188 Q7,-191 11,-188" fill="none" stroke-width="1.7"/>
+    <ellipse cx="-5" cy="-183" rx="1.5" ry="1.9" fill="#141414" stroke="none"/>
+    <ellipse cx="7" cy="-183" rx="1.5" ry="1.9" fill="#141414" stroke="none"/>
+    <path d="M1,-181 L-1,-176 L2,-175.5" fill="none" stroke-width="1.3"/>
+    <path d="M-6,-171 Q1,-164 8,-171 Q1,-168 -6,-171 Z" fill="#FFFFFF" stroke-width="1.5"/>
+  </g>
+  </g>
+  <g class="bubble" stroke="#141414" stroke-width="2" stroke-linejoin="round">
+    <path d="M16,146 L128,146 Q136,146 136,154 L136,174 Q136,182 128,182 L74,182 L66,192 L64,182 L16,182 Q8,182 8,174 L8,154 Q8,146 16,146 Z" fill="#FFFFFF"/>
+    <text x="72.0" y="162" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1E2A2A" stroke="none">Hey James! Hey John!</text><text x="72.0" y="175" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1E2A2A" stroke="none">New one from Patrick.</text>
   </g>
 </svg>
