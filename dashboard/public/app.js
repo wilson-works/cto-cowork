@@ -11,7 +11,7 @@
     'John: "Smallest correct change. Then coffee."',
     'James: "We plan it, you paste it. Nobody starts a lane behind your back."',
     'John: "Two lanes in one file is how Tuesdays get long."',
-    'James: "The gate grades the work. We don't grade our own homework."',
+    'James: "The gate grades the work. We don\'t grade our own homework."',
     'John: "Clean diff, clean conscience."',
   ];
   const open = new Set();
