@@ -26,7 +26,8 @@
  *
  * The API:
  *   GET  /health                    {"ok":true}, no token, ever: the office probes it
- *   GET  /api/state                 { name, running, runs: [...], claude, fleetOps, capMinutes }
+ *   GET  /api/state                 { name, running, runs: [...], scene, claude, fleetOps, capMinutes }; scene is which
+ *                                   picture the page shows (engine/runs.js sceneOf), one of art/<scene>.svg
  *   POST /api/runs  { direction, training }   starts one run: 202 { run }; 409 with { error, reason } when it cannot
  *                                   (running | no-claude | no-fleet-ops); 400 (empty | long)
  *   POST /api/runs/stop  {}         stops the run that is going: 200 { run }; 409 (not-running | starting | not-ours)
@@ -127,6 +128,7 @@ function createServer(opts) {
       const cur = runs.current(home);
       return json(res, 200, {
         name: "James and John's Coworking Space", running: cur ? runs.summary(cur) : null, runs: list,
+        scene: runs.sceneOf ? runs.sceneOf(home, cur, list) : 'idle',
         claude: !!cfg.claude, fleetOps: !!cfg.fleetOps, capMinutes: Math.round(cfg.capMs / 60000),
       });
     }

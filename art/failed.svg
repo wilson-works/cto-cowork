@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="James stands easy by the run board with a coffee; John is on the sofa reading a diff. Dinner waits on the coffee table in takeout boxes.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="The run did not publish: John says &quot;That one didn&#x27;t land. We&#x27;ll try again.&quot; while James looks over.">
   <title>James and John's Coworking Space</title>
-  <!-- Scene "idle". Drawn by art/build.py; edit that, not this file. -->
+  <!-- Scene "failed". Drawn by art/build.py; edit that, not this file. -->
   <rect width="640" height="400" fill="#CBD9D3"/>
   <polygon points="20,350 320,200 320,20 20,170" fill="#DCE5E0"/>
   <polygon points="320,200 620,350 620,170 320,20" fill="#C6D3CD"/>
@@ -18,9 +18,16 @@
     <polygon points="430,145 590,225 590,95 430,15" fill="none"/>
     <polygon points="90,245 250,165 250,85 90,165" fill="#FAFBFA"/>
     <g transform="matrix(1 -0.5 0 1 90 165)" stroke-width="1.6">
-      <rect x="15" y="15" width="100" height="8" fill="#2E6B66" stroke="none"/>
-      <rect x="15" y="35" width="70" height="8" fill="#7FB3AD" stroke="none"/>
-      <rect x="15" y="55" width="125" height="8" fill="#D9895B" stroke="none"/>
+      <rect x="10" y="9" width="34" height="15" rx="3" fill="none" stroke="#2E6B66"/>
+      <path d="M44,16.5 L60,16.5 M56,13.5 L60,16.5 L56,19.5" fill="none" stroke="#2E6B66"/>
+      <rect x="60" y="9" width="34" height="15" rx="3" fill="none" stroke="#2E6B66"/>
+      <path d="M94,16.5 L110,16.5 M106,13.5 L110,16.5 L106,19.5" fill="none" stroke="#2E6B66"/>
+      <rect x="110" y="9" width="38" height="15" rx="3" fill="none" stroke="#2E6B66"/>
+      <path d="M77,24 L77,36 M74,32 L77,36 L80,32" fill="none" stroke="#2E6B66"/>
+      <path d="M77,36 L93,48 L77,60 L61,48 Z" fill="none" stroke="#D9895B"/>
+      <path d="M61,48 L28,48 L28,24 M25,28 L28,24 L31,28" fill="none" stroke="#D9895B"/>
+      <path d="M93,48 L129,48 L129,24 M126,28 L129,24 L132,28" fill="none" stroke="#2E6B66"/>
+      <path d="M18,13 L36,13 M18,17 L30,17 M68,13 L86,13 M68,17 L80,17 M118,13 L140,13 M118,17 L132,17" fill="none" stroke="#7FB3AD" stroke-width="1.2"/>
     </g>
     <g>
       <path d="M296,150 C268,146 258,124 270,112 C288,114 302,130 296,150 Z" fill="#3D6B49"/>
@@ -79,8 +86,8 @@
     <polygon points="220,318 320,368 320,390 220,340" fill="#B8936A"/>
     <polygon points="320,368 360,348 360,370 320,390" fill="#9A774F"/>
     <g class="dinner">
-      <g transform="translate(306 345) scale(0.95)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L0,-24 L9,-17 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-7,-20 Q0,-31 7,-20" fill="none" stroke="#6E737B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
-      <g transform="translate(330 356) scale(1.05)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L0,-24 L9,-17 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-7,-20 Q0,-31 7,-20" fill="none" stroke="#6E737B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
+      <g transform="translate(306 345) scale(0.95)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/><path d="M1,-18 L9,-36 M4,-18 L13,-34" fill="none" stroke="#B8936A" stroke-width="1.8"/></g>
+      <g transform="translate(330 356) scale(1.05)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
       <path d="M282,340 L300,349 L296,351 L278,342 Z" fill="#F7F7F5" stroke-width="1.2"/>
       <path d="M344,341 Q350,336 356,341 Q350,344 344,341 Z" fill="#E6C27A" stroke-width="1.2"/>
     </g>
@@ -126,12 +133,16 @@
     <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="none"/>
     <path d="M-13,-194 C-16,-214 6,-221 14,-206 C15,-201 14,-197 13,-193 C10,-202 2,-206 -5,-204 C-9,-201 -11,-198 -13,-194 Z" fill="#2E2724"/>
     <path d="M-10,-197 Q-5.5,-199.5 -1,-197 M2,-197 Q6.5,-199.5 11,-197" fill="none" stroke-width="1.8"/>
-    <circle cx="-5" cy="-190" r="1.4" fill="#141414" stroke="none"/>
-    <circle cx="6" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="-3.6" cy="-190" r="1.4" fill="#141414" stroke="none"/>
+    <circle cx="7.4" cy="-190" r="1.4" fill="#141414" stroke="none"/>
     <circle cx="-5" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
     <circle cx="6" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
     <path d="M-0.4,-190.5 L1.4,-190.5" fill="none" stroke-width="1.5"/>
     <path d="M1,-187 L-1,-182 L2,-181.5" fill="none" stroke-width="1.3"/>
     <path d="M-4,-177 Q1,-173 6,-177" fill="none" stroke-width="1.7"/>
+  </g>
+  <g class="bubble" stroke="#141414" stroke-width="2" stroke-linejoin="round">
+    <path d="M404,120 L508,120 Q516,120 516,128 L516,148 Q516,156 508,156 L412,156 L404,166 L402,156 L404,156 Q396,156 396,148 L396,128 Q396,120 404,120 Z" fill="#FFFFFF"/>
+    <text x="456.0" y="136" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1E2A2A" stroke="none">That one didn&#x27;t land.</text><text x="456.0" y="149" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1E2A2A" stroke="none">We&#x27;ll try again.</text>
   </g>
 </svg>

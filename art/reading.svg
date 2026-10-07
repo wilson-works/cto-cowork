@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="James stands easy by the run board with a coffee; John is on the sofa reading a diff. Dinner waits on the coffee table in takeout boxes.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Reading the state: John reads on his tablet while James eats takeout by the board.">
   <title>James and John's Coworking Space</title>
-  <!-- Scene "idle". Drawn by art/build.py; edit that, not this file. -->
+  <!-- Scene "reading". Drawn by art/build.py; edit that, not this file. -->
   <rect width="640" height="400" fill="#CBD9D3"/>
   <polygon points="20,350 320,200 320,20 20,170" fill="#DCE5E0"/>
   <polygon points="320,200 620,350 620,170 320,20" fill="#C6D3CD"/>
@@ -79,8 +79,8 @@
     <polygon points="220,318 320,368 320,390 220,340" fill="#B8936A"/>
     <polygon points="320,368 360,348 360,370 320,390" fill="#9A774F"/>
     <g class="dinner">
-      <g transform="translate(306 345) scale(0.95)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L0,-24 L9,-17 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-7,-20 Q0,-31 7,-20" fill="none" stroke="#6E737B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
-      <g transform="translate(330 356) scale(1.05)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L0,-24 L9,-17 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-7,-20 Q0,-31 7,-20" fill="none" stroke="#6E737B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
+      <g transform="translate(306 345) scale(0.95)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/><path d="M1,-18 L9,-36 M4,-18 L13,-34" fill="none" stroke="#B8936A" stroke-width="1.8"/></g>
+      <g transform="translate(330 356) scale(1.05)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/></g>
       <path d="M282,340 L300,349 L296,351 L278,342 Z" fill="#F7F7F5" stroke-width="1.2"/>
       <path d="M344,341 Q350,336 356,341 Q350,344 344,341 Z" fill="#E6C27A" stroke-width="1.2"/>
     </g>
@@ -116,9 +116,7 @@
     
     </g></g>
     <path d="M18,-158 C26,-150 29,-136 27,-123 C21,-121 13,-123 6,-125 L6,-132 C12,-131 17,-131 20,-133 C20,-142 18,-150 13,-156 Z" fill="#A9B1B9"/>
-    <path d="M-2,-146 L10,-146 L10,-130 C10,-127 -2,-127 -2,-130 Z" fill="#D9895B"/>
-    <path d="M10,-142 C15,-142 15,-134 10,-134" fill="none" stroke-width="1.8"/>
-    <ellipse cx="4" cy="-146" rx="6" ry="2" fill="#E8A77E" stroke-width="1.4"/>
+    <g transform="translate(4 -126) scale(0.9)"><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/><path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/><path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/><path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/><path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/><path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/><path d="M1,-18 L9,-36 M4,-18 L13,-34" fill="none" stroke="#B8936A" stroke-width="1.8"/></g>
     <path d="M2,-134 C6,-136 10,-133 8,-129 C6,-127 2,-128 2,-131 Z" fill="#D6A07C" stroke-width="1.6"/>
     <path d="M-5,-171 L5,-171 L6,-158 L-6,-158 Z" fill="#D6A07C"/>
     <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="#D6A07C"/>

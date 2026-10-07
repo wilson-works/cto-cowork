@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="James, CTO">
   <title>James, CTO</title>
-  <!-- From the scene's own shapes (cto-cowork art.svg): late-90s comic style, inked outlines, flat cel shading.
-       The vibe of an easy-going duo, never a likeness of anyone real. Colour by fill and stroke attributes only. -->
+  <!-- Drawn by art/build.py from the scenes' own shapes. Two colleagues side by side, each in their own half. -->
   <defs><clipPath id="cw-james"><rect width="64" height="64" rx="14"/></clipPath></defs>
   <rect width="64" height="64" rx="14" fill="#CBD9D3"/>
   <g clip-path="url(#cw-james)">
@@ -10,8 +9,7 @@
     <path d="M10,-166 C24,-162 30,-140 26,-100 L10,-100 C13,-126 14,-146 10,-166 Z" fill="#A9B1B9" stroke="none"/>
     <path d="M-30,-162 C-34,-140 -32,-120 -30,-100 L26,-100 C28,-120 30,-140 26,-162 C14,-168 -18,-168 -30,-162 Z" fill="none"/>
     <path d="M-7,-164 L0,-138 L7,-164 Z" fill="#F7F7F5"/>
-    <path d="M-7,-164 L-2,-118 M7,-164 L2,-118" fill="none" stroke-width="1.6"/>
-    <path d="M-5,-171 L5,-171 L6,-160 L-6,-160 Z" fill="#D6A07C"/>
+    <path d="M-5,-171 L5,-171 L6,-158 L-6,-158 Z" fill="#D6A07C"/>
     <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="#D6A07C"/>
     <path d="M5,-201 C12,-199 13,-191 12,-181 C10,-174 6,-171 3,-170 C7,-179 8,-191 5,-201 Z" fill="#B57F5C" stroke="none"/>
     <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="none"/>

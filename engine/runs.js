@@ -89,6 +89,61 @@ function current(home, now) {
   return r;
 }
 
+/**
+ * What James and John are doing right now in a run, read from the tail of its stream (the last tool the session called):
+ * John's own calls, or the Agent call that asks him, are "consulting"; a write to RUN.md is the "flowchart" (James at the
+ * board); a write to a prompt, PROMPTS.md or BOARD.md is the "spec" (John drawing the spec sheets); anything else is
+ * "reading". Only names and paths are read from the log, never what a tool returned.
+ */
+const TAIL_BYTES = 256 * 1024;
+function activityOf(home, id) {
+  let text = '';
+  try {
+    const f = logFile(home, id);
+    const size = fs.statSync(f).size;
+    const len = Math.min(size, TAIL_BYTES);
+    const fd = fs.openSync(f, 'r');
+    const buf = Buffer.alloc(len);
+    fs.readSync(fd, buf, 0, len, size - len);
+    fs.closeSync(fd);
+    text = buf.toString('utf8');
+  } catch (_) { return 'reading'; }
+  const lines = text.split(/\r?\n/);
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const l = lines[i];
+    if (!l.startsWith('{') || !l.includes('"tool_use"') || !l.includes('"assistant"')) continue;
+    let j;
+    try { j = JSON.parse(l); } catch (_) { continue; }
+    if (j.type !== 'assistant' || !j.message || !Array.isArray(j.message.content)) continue;
+    const uses = j.message.content.filter((c) => c && c.type === 'tool_use');
+    if (!uses.length) continue;
+    if (j.parent_tool_use_id) return 'consulting';
+    const u = uses[uses.length - 1];
+    const file = String((u.input && u.input.file_path) || '').replace(/\\/g, '/');
+    if (u.name === 'Agent' || u.name === 'Task') return 'consulting';
+    if ((u.name === 'Write' || u.name === 'Edit') && /\/RUN\.md$/i.test(file)) return 'flowchart';
+    if ((u.name === 'Write' || u.name === 'Edit') && (/\/prompts\//i.test(file) || /\/(PROMPTS|BOARD)\.md$/i.test(file))) return 'spec';
+    return 'reading';
+  }
+  return 'reading';
+}
+
+const SCENES = ['idle', 'tim', 'reading', 'flowchart', 'consulting', 'spec', 'done', 'failed'];
+const TIM_MS = 25 * 1000;
+const AFTER_MS = 10 * 60 * 1000;
+
+/** The scene the dashboard shows: Tim brings a new direction in, then the run's activity, then done or failed a while. */
+function sceneOf(home, cur, list, now) {
+  const at = now || Date.now();
+  if (cur) {
+    if (cur.status === 'starting' || at - Date.parse(cur.created) < TIM_MS) return 'tim';
+    return activityOf(home, cur.id);
+  }
+  const last = (list || [])[0];
+  if (last && last.ended && at - Date.parse(last.ended) < AFTER_MS) return last.status === 'finished' ? 'done' : 'failed';
+  return 'idle';
+}
+
 /** What the dashboard shows of a run (never the log, never a pid). */
 function summary(r) {
   return {
@@ -171,4 +226,4 @@ function stop(home) {
   return summary(read(home, r.id));
 }
 
-module.exports = { start, stop, list, current, read, update, summary, runFile, logFile, releaseLock, alive, dirs };
+module.exports = { start, stop, list, current, read, update, summary, runFile, logFile, releaseLock, alive, dirs, activityOf, sceneOf, SCENES };

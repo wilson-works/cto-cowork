@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="John, Chief Engineer">
   <title>John, Chief Engineer</title>
-  <!-- From the scene's own shapes (cto-cowork art.svg): late-90s comic style, inked outlines, flat cel shading.
-       The vibe of an easy-going duo, never a likeness of anyone real. Colour by fill and stroke attributes only. -->
+  <!-- Drawn by art/build.py from the scenes' own shapes. Two colleagues side by side, each in their own half. -->
   <defs><clipPath id="cw-john"><rect width="64" height="64" rx="14"/></clipPath></defs>
   <rect width="64" height="64" rx="14" fill="#CBD9D3"/>
   <g clip-path="url(#cw-john)">
@@ -16,12 +15,10 @@
     <path d="M338,186 C338,200 345,207 353,207 C361,207 368,200 368,186 C366,192 362,195 360,195 L346,195 C343,195 340,192 338,186 Z" fill="#231C18"/>
     <path d="M346,192 Q353,188.5 360,192 Q353,194.5 346,192 Z" fill="#231C18" stroke-width="1"/>
     <path d="M338,181 C336,164 368,160 368,180 C364,172 354,170 346,172 C342,174 340,177 338,181 Z" fill="#1A1614"/>
-    <path d="M343,177.5 L350,176.5 M356,176.5 L363,177.5" fill="none" stroke-width="2.4"/>
-    <path d="M343.5,181.5 L350.5,181.5 M355.5,181.5 L362.5,181.5" fill="none" stroke-width="1.8"/>
-    <circle cx="347.5" cy="183" r="1.5" fill="#141414" stroke="none"/>
-    <circle cx="359" cy="183" r="1.5" fill="#141414" stroke="none"/>
     <path d="M353,183 L351,189 L355,189.5" fill="none" stroke-width="1.2"/>
-    <path d="M351,199.8 Q354,200.6 357,199.4" fill="none" stroke="#E9D9CB" stroke-width="1.3"/>
+    <path d="M343,176 L350,175.5 M356,175.5 L363,176" fill="none" stroke-width="2.4"/>
+    <ellipse cx="347" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/><ellipse cx="359" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/>
+    <path d="M349,199.5 Q353.5,202 358,199" fill="none" stroke="#E9D9CB" stroke-width="1.5"/>
   </g>
   </g>
   <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="none" stroke="#141414" stroke-width="1.5"/>

@@ -28,6 +28,60 @@
     return data;
   }
 
+  /* ------------------------------------------------------------------ the scene
+   * The picture follows the run (the server's `scene`, engine/runs.js sceneOf): Tim walks in with a new direction,
+   * then James and John read, draw the flowchart, John makes his call, John draws the spec sheets, then done (or
+   * didn't land). Each scene is art/<scene>.svg, drawn by art/build.py, put in the page as SVG so app.css can move its
+   * parts, and crossfaded. ?scene=<name> shows one scene and holds it (for a look at each one). */
+  const SCENES = ['idle', 'tim', 'reading', 'flowchart', 'consulting', 'spec', 'done', 'failed'];
+  const CAPTIONS = {
+    idle: "In the office. Dinner's on the table.",
+    tim: 'Tim just walked in with a new direction.',
+    reading: 'Reading the state. Takeout in hand.',
+    flowchart: 'James is drawing the run on the board.',
+    consulting: 'John is making his call.',
+    spec: 'John is drawing the spec sheets.',
+    done: 'Done. The paste blocks are up.',
+    failed: "That one didn't land.",
+  };
+  const pinned = (() => { try { const s = new URLSearchParams(location.search).get('scene'); return SCENES.includes(s) ? s : null; } catch (_) { return null; } })();
+  const svgCache = new Map();
+  let shown = null;
+  let wanted = null;
+
+  async function sceneSvg(name) {
+    if (!svgCache.has(name)) {
+      const res = await fetch(`/art/${name}.svg`, { cache: 'force-cache' });
+      if (!res.ok) throw new Error('no scene');
+      const doc = new DOMParser().parseFromString(await res.text(), 'image/svg+xml');
+      const svg = doc.documentElement;
+      if (!svg || svg.nodeName.toLowerCase() !== 'svg') throw new Error('bad scene');
+      // Our own files; still, nothing scriptable goes into the page.
+      svg.querySelectorAll('script, foreignObject').forEach((n) => n.remove());
+      svg.querySelectorAll('*').forEach((n) => [...n.attributes].forEach((a) => { if (/^on/i.test(a.name) || /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name); }));
+      svgCache.set(name, svg);
+    }
+    return document.importNode(svgCache.get(name), true);
+  }
+
+  async function showScene(name) {
+    wanted = name;
+    if (name === shown) return;
+    let svg;
+    try { svg = await sceneSvg(name); } catch (_) { return; }
+    if (wanted !== name) return;
+    const box = $('scene');
+    const layer = document.createElement('div');
+    layer.className = 'layer';
+    layer.appendChild(svg);
+    box.appendChild(layer);
+    box.setAttribute('data-scene', name);
+    $('scene-cap').textContent = CAPTIONS[name] || '';
+    requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add('is-in')));
+    setTimeout(() => { [...box.children].forEach((c) => { if (c !== layer) c.remove(); }); }, 700);
+    shown = name;
+  }
+
   const WORDS = { starting: 'Starting', running: 'Working', finished: 'Composed', failed: 'Did not publish', stopped: 'Stopped' };
   const SHAPES = { starting: '◌', running: '●', finished: '■', failed: '▲', stopped: '◆' };
 
@@ -105,6 +159,7 @@
   async function refresh() {
     let s;
     try { s = await call('GET', '/api/state'); } catch (e) { $('ask-msg').textContent = e.message; return; }
+    showScene(pinned || (SCENES.includes(s.scene) ? s.scene : 'idle'));
     busy = !!s.running;
     $('go').disabled = busy;
     $('now').hidden = !busy;

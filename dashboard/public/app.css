@@ -22,8 +22,36 @@ h1 { margin: 0; font: 300 1.5rem/1.2 var(--mono); letter-spacing: -.01em; }
 .room { display: grid; grid-template-columns: minmax(320px, 380px) minmax(0, 1fr); gap: 24px; padding: 24px; max-width: 1240px; margin: 0 auto; }
 .desk, .runs { min-width: 0; }
 .desk { position: sticky; top: 16px; align-self: start; }
-.scene { margin: 0 0 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-.scene img { display: block; width: 100%; height: auto; }
+.stage { max-width: 1240px; margin: 0 auto; padding: 24px 24px 0; }
+.scene-box { max-width: 860px; margin: 0 auto; }
+.scene { position: relative; aspect-ratio: 640 / 400; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.scene > img { display: block; width: 100%; height: auto; }
+.scene .layer { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; }
+.scene .layer.is-in { opacity: 1; }
+.scene .layer svg { display: block; width: 100%; height: 100%; }
+#scene-cap { margin: 6px 2px 0; color: var(--ink-2); font-size: .9rem; }
+/* What moves (classes from art/build.py). Tim walks in and talks; marker and pencil move; John nods his point home;
+   the flowchart draws itself again and again while James is at the board. Reduced motion: every scene holds still. */
+.scene .tim { animation: cw-walk 1.8s cubic-bezier(.2, .7, .3, 1) both; }
+@keyframes cw-walk { from { transform: translateX(-150px); } to { transform: none; } }
+.scene .bubble { transform-box: fill-box; transform-origin: 50% 100%; animation: cw-pop .45s .4s both; }
+.scene .tim + .bubble { animation-delay: 1.8s; }
+@keyframes cw-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+.scene .scribble { transform-box: fill-box; transform-origin: 90% 10%; animation: cw-scribble .9s ease-in-out infinite alternate; }
+@keyframes cw-scribble { from { transform: rotate(-3deg); } to { transform: rotate(3deg) translate(1px, -1px); } }
+.scene .nod { transform-box: fill-box; transform-origin: 0% 100%; animation: cw-nod 1.4s ease-in-out infinite alternate; }
+@keyframes cw-nod { to { transform: rotate(-7deg); } }
+.scene .wave { transform-box: fill-box; transform-origin: 100% 50%; animation: cw-wave .5s ease-in-out 1.9s 4 alternate; }
+@keyframes cw-wave { to { transform: rotate(-10deg); } }
+.scene .draw { stroke-dasharray: 160; stroke-dashoffset: 160; animation: cw-draw 10s ease-in-out infinite; }
+.scene .draw.d2 { animation-delay: .5s; } .scene .draw.d3 { animation-delay: 1s; } .scene .draw.d4 { animation-delay: 1.5s; }
+.scene .draw.d5 { animation-delay: 2s; } .scene .draw.d6 { animation-delay: 2.5s; } .scene .draw.d7 { animation-delay: 3s; }
+.scene .draw.d8 { animation-delay: 3.5s; } .scene .draw.d9 { animation-delay: 4s; } .scene .draw.d10 { animation-delay: 4.5s; }
+@keyframes cw-draw { 0% { stroke-dashoffset: 160; } 20% { stroke-dashoffset: 0; } 88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 160; } }
+@media (prefers-reduced-motion: reduce) {
+  .scene *, .scene .layer { animation: none !important; transition: none !important; }
+  .scene .draw { stroke-dashoffset: 0; }
+}
 .tape { display: inline-block; margin: 0 0 10px; padding: 3px 12px; font: 600 .78rem/1.4 var(--mono); text-transform: uppercase;
   letter-spacing: .1em; color: var(--cobalt-ink); background: var(--cobalt); border-radius: 999px; }
 form { display: grid; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
@@ -63,8 +91,8 @@ pre { margin: 0; padding: 10px 12px; max-height: 50vh; overflow: auto; font: .85
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 899px) {
   .room { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 18px; }
+  .stage { padding: 16px 16px 0; }
   .desk { position: static; }
   .top { padding: 14px 16px; }
   #go { width: 100%; }
-  .scene { max-height: 220px; }
 }
