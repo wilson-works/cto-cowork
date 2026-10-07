@@ -1,0 +1,42 @@
+{
+  "key": "cowork",
+  "name": "James and John's Coworking Space",
+  "title": "The CTO org's office",
+  "line": "Tell James and John what you need. They read the state, plan the run, and hand you the paste blocks. You start the lanes.",
+  "status": "live",
+  "door": {
+    "local": "http://127.0.0.1:7560/",
+    "phone": null
+  },
+  "probe": {
+    "port": 7560,
+    "path": "/health"
+  },
+  "start": "node dashboard/server.js",
+  "autostart": false,
+  "match": [
+    "coworking space",
+    "cto-cowork",
+    "james and john"
+  ],
+  "brand": {
+    "bg": "#E4E2DD",
+    "panel": "#F4F3F0",
+    "ink": "#1C1F24",
+    "accent": "#2B45C4",
+    "accent2": "#E2601A",
+    "font": "\"Segoe UI Variable Text\", \"Segoe UI\", system-ui, -apple-system, sans-serif",
+    "mark": "mark.svg"
+  },
+  "art": "art.svg",
+  "jokes": [
+    "James: Short version first. Then we earn the long one.",
+    "John: Show me the diff. Then show me the test that fails without it.",
+    "James: Every lane gets a DONE-WHEN. No exceptions, John.",
+    "John: No exceptions. Except the ones I catch.",
+    "James: We plan it. You paste it. Nobody starts a lane behind your back.",
+    "John: Two lanes in one file is how Tuesdays get long.",
+    "James: The gate grades the work. We don't grade our own homework.",
+    "John: I read the merge before I trust it. Every time."
+  ]
+}

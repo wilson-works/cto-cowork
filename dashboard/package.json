@@ -1,0 +1,1 @@
+{ "type": "commonjs", "private": true, "_": "The Coworking Space's server is CommonJS with no dependencies. This file keeps it so wherever the folder lands, even under a folder whose package.json says type: module." }

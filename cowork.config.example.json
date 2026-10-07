@@ -1,0 +1,11 @@
+{
+  "_": "Copy this file to cowork.config.json in the space's folder to change any default. Every key is optional. cowork.config.json is machine-local and never committed.",
+  "port": 7560,
+  "_phone": "This computer's own address for the door on your phone (for example from: tailscale serve --bg --https=8446 http://127.0.0.1:7560). The dashboard then answers that host name too.",
+  "phone": "https://desk.example-tailnet.ts.net:8446/",
+  "_paths": "Found on their own when left out: hub (D:\\Hub or C:\\Hub, whichever holds CLAUDE.md), fleet_ops (<hub>\\50-AI\\fleet-ops), rigs (<hub drive>\\tmp\\rigs), claude (claude.exe on the PATH).",
+  "_run": "model and effort for a composing run, and its hard cap in minutes (2 to 120).",
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "cap_minutes": 40
+}

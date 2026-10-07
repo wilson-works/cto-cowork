@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="James at the wall board with a marker, John hunched at the bench under a magnifier lamp, in a concrete studio">
+  <title>James and John's Coworking Space</title>
+  <!-- Flat isometric (2:1 dimetric), no outlines, three tones per solid: light top, mid left, dark right. Colour by fill only. -->
+  <rect width="640" height="400" fill="#E4E2DD"/>
+  <!-- the room: left wall, right wall, floor -->
+  <polygon points="20,350 320,200 320,20 20,170" fill="#D9D6D0"/>
+  <polygon points="320,200 620,350 620,170 320,20" fill="#C7C3BB"/>
+  <polygon points="320,200 620,350 320,500 20,350" fill="#ECEAE5"/>
+  <!-- slab seams on the floor -->
+  <line x1="170" y1="275" x2="470" y2="425" stroke="#DCD9D2" stroke-width="2"/>
+  <line x1="470" y1="275" x2="170" y2="425" stroke="#DCD9D2" stroke-width="2"/>
+  <!-- frosted wired-glass panel on the right wall -->
+  <polygon points="430,145 590,225 590,95 430,15" fill="#E9ECEF"/>
+  <polygon points="430,145 590,225 590,232 430,152" fill="#B9BDC4"/>
+  <line x1="483" y1="42" x2="483" y2="172" stroke="#D3D8DE" stroke-width="3"/>
+  <line x1="537" y1="69" x2="537" y2="199" stroke="#D3D8DE" stroke-width="3"/>
+  <line x1="430" y1="80" x2="590" y2="160" stroke="#D3D8DE" stroke-width="3"/>
+  <!-- the pinned wall board on the left wall -->
+  <polygon points="90,245 250,165 250,85 90,165" fill="#F4F3F0"/>
+  <polygon points="90,245 250,165 250,171 90,251" fill="#B9BDC4"/>
+  <polygon points="105,197.5 135,182.5 135,157.5 105,172.5" fill="#2B45C4"/>
+  <polygon points="150,190 185,172.5 185,142.5 150,160" fill="#E2601A"/>
+  <polygon points="200,140 235,122.5 235,97.5 200,115" fill="#9AA6E8"/>
+  <polygon points="112,226 152,206 152,196 112,216" fill="#9AA6E8"/>
+  <line x1="135" y1="172" x2="150" y2="172" stroke="#1C1F24" stroke-width="2"/>
+  <line x1="185" y1="158" x2="200" y2="128" stroke="#1C1F24" stroke-width="2"/>
+  <line x1="168" y1="200" x2="228" y2="170" stroke="#1C1F24" stroke-width="2"/>
+
+  <!-- James: tall and narrow, standing, turned three-quarters away toward the board, arm raised with a marker -->
+  <ellipse cx="176" cy="342" rx="26" ry="9" fill="#D6D3CC"/>
+  <polygon points="166,262 178,268 178,340 166,334" fill="#2A2E35"/>
+  <polygon points="178,268 188,263 188,335 178,340" fill="#1C1F24"/>
+  <polygon points="160,262 160,334 168,338 168,266" fill="#33383F"/>
+  <polygon points="156,190 176,200 176,276 156,266" fill="#2B45C4"/>
+  <polygon points="176,200 194,191 194,267 176,276" fill="#1F3496"/>
+  <polygon points="156,190 174,181 194,191 176,200" fill="#4A62D8"/>
+  <!-- raised arm to the board -->
+  <polygon points="158,196 150,150 158,146 166,192" fill="#2B45C4"/>
+  <polygon points="150,150 146,128 153,125 158,146" fill="#C99A78"/>
+  <polygon points="145,126 141,112 146,110 150,124" fill="#1C1F24"/>
+  <!-- other arm, down -->
+  <polygon points="190,196 198,200 198,250 190,246" fill="#1F3496"/>
+  <polygon points="190,246 198,250 198,262 190,258" fill="#B07F5E"/>
+  <!-- head, featureless, turned away; one flat hair shape -->
+  <ellipse cx="176" cy="168" rx="13" ry="15" fill="#C99A78"/>
+  <path d="M163,166 C163,150 189,148 190,164 C184,158 170,158 163,166 Z" fill="#3B2F2A"/>
+  <path d="M163,166 C162,175 168,182 176,183 C170,178 168,172 170,164 Z" fill="#3B2F2A"/>
+
+  <!-- the shared bench against the right wall -->
+  <polygon points="400,215 560,295 500,325 340,245" fill="#B9BDC4"/>
+  <polygon points="340,245 500,325 500,385 340,305" fill="#8B9098"/>
+  <polygon points="500,325 560,295 560,355 500,385" fill="#6E737B"/>
+  <!-- laptop and mug on the bench -->
+  <polygon points="420,236 460,256 440,266 400,246" fill="#33383F"/>
+  <polygon points="420,236 460,256 460,226 420,206" fill="#1C1F24"/>
+  <polygon points="424,232 456,248 456,230 424,214" fill="#4A62D8"/>
+  <polygon points="508,281 518,286 518,298 508,293" fill="#E2601A"/>
+  <polygon points="518,286 526,282 526,294 518,298" fill="#B84A12"/>
+  <ellipse cx="517" cy="282" rx="9" ry="4" fill="#F08A4B"/>
+  <!-- magnifier lamp: base, arm, ring head -->
+  <ellipse cx="470" cy="280" rx="12" ry="5" fill="#33383F"/>
+  <line x1="470" y1="278" x2="452" y2="212" stroke="#33383F" stroke-width="4"/>
+  <line x1="452" y1="212" x2="402" y2="232" stroke="#33383F" stroke-width="4"/>
+  <ellipse cx="394" cy="240" rx="20" ry="10" fill="#33383F"/>
+  <ellipse cx="394" cy="240" rx="14" ry="6" fill="#F6F4EC"/>
+  <polygon points="380,246 408,246 396,290 372,280" fill="#F6F4EC" fill-opacity="0.35"/>
+
+  <!-- John: broad and compact, seated hunched forward on a stool at the bench, sleeves rolled, orange overshirt -->
+  <ellipse cx="352" cy="378" rx="30" ry="10" fill="#D6D3CC"/>
+  <polygon points="346,330 352,333 352,378 346,375" fill="#33383F"/>
+  <ellipse cx="352" cy="330" rx="24" ry="10" fill="#1C1F24"/>
+  <polygon points="334,322 372,341 386,320 348,301" fill="#2A2E35"/>
+  <polygon points="372,341 386,320 392,350 380,366" fill="#1C1F24"/>
+  <polygon points="318,268 346,282 352,330 324,316" fill="#E2601A"/>
+  <polygon points="346,282 372,269 378,317 352,330" fill="#B84A12"/>
+  <polygon points="318,268 344,255 372,269 346,282" fill="#F08A4B"/>
+  <!-- forearms forward onto the bench, sleeves rolled -->
+  <polygon points="364,284 384,274 388,282 368,292" fill="#F08A4B"/>
+  <polygon points="384,274 404,264 408,272 388,282" fill="#8F5E44"/>
+  <polygon points="326,292 352,300 352,308 326,300" fill="#B84A12"/>
+  <polygon points="352,300 380,290 382,298 352,308" fill="#8F5E44"/>
+  <!-- head, featureless, bowed toward the lamp; one flat hair shape (close-cropped) -->
+  <ellipse cx="358" cy="252" rx="15" ry="14" fill="#8F5E44"/>
+  <path d="M343,252 C341,236 372,232 374,248 C366,242 352,242 343,252 Z" fill="#1C1F24"/>
+</svg>

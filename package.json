@@ -1,0 +1,10 @@
+{
+  "name": "cto-cowork",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "description": "James and John's Coworking Space: the CTO org's office. Woken from the fleet office, it composes runs into fleet-ops headless and hands back the paste blocks.",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node dashboard/server.js" }
+}

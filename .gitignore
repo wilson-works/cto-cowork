@@ -1,0 +1,10 @@
+node_modules/
+*.log
+*.tmp
+.DS_Store
+# machine-local: the phone address and any path overrides (never committed)
+cowork.config.json
+# the runs, their logs and the run lock
+state/
+dashboard/.pid
+.rig-meta.json
