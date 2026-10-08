@@ -1,449 +1,869 @@
 """art/build.py: draws every picture of James and John's Coworking Space from one set of parts, so the room, the people
 and the ink are the same hand in every scene. Run it from the space's folder (python art/build.py); it writes:
 
-  art.svg                the door figure and the dashboard's still (the idle scene)
+  art.svg                the dashboard's still (the idle scene)
   art/<scene>.svg        one scene per stage of a run, which the dashboard swaps in as the run moves:
-                         idle, tim (a direction arrives: Tim walks in with it), reading, flowchart (RUN.md: James at the
-                         board), consulting (John makes his one call), spec (the prompts: John drawing a spec sheet),
-                         done, failed
-  mark.svg               the pair, as two colleagues side by side (the office floor shows it as their avatar)
+                         idle, tim (a direction arrives: Tim walks in with the memo), reading, flowchart (RUN.md: James
+                         at the run board), consulting (John makes his one call), spec (the prompts: John at the terminal,
+                         the spec coming off the printer), done (a toast), failed
+  art/door.svg           the two of them for the office door: the CTO and the Chief Engineer, side by side
+  mark.svg               the pair, two colleagues each in their own half (the office floor shows it as their avatar)
   art/james.svg, art/john.svg   one avatar each
 
-Owner 2026-10-06: "like Cheech and Chong meets corporate world. so clean and collected, but cool and calming" and "Read
-their agent bios when designing their office and avatars"; 23:07 CDT: "less blocky, more like the late 90s comic book
-cartoon era"; later: "James and John's picture avatar make them look like a couple, not coworkers. Make them a bit more
-platonic feeling, and bring their dashboard alive like the rest, like when Tim routes a message, have Tim walk in and talk
-to James and John, and then have them doing various activities like writing flow charts, or drawing a spec sheet, and
-have chinese takeout containers on the coffee table like they are working through dinner."
+Owner 2026-10-07 ~22:40 CDT, a ground-up redesign that scraps the lounge look: "recreate them like a 1980s Software
+Startup setting, working in an executive office, both in dress shirt, tie, rolled up sleeves, a couple glasses with brown
+liquid in them, a couple cigars on the table, and still some boxes of chinese takeout food. Think Mad Men meets Scooby Doo
+cartoon art style. And redesign James and John to resemble like a CTO and Chief Engineer, not like 2 partners living
+together in an apartment. Really need to land the coworking and leadership elements more."
 
-Style: inked outlines (#141414), flat cel shading (one hard shadow shape per form), an isometric lounge. Colour by fill
-and stroke attributes only. Classes (walk, bubble, draw, scribble, nod) are hooks the dashboard's CSS animates; with no
-CSS the scenes are complete stills. The vibe of three easy-going colleagues, never a likeness of anyone real.
+Style: Saturday-morning cel on a painted background. The room is flat painted shapes with a thin brown line and no black
+ink (walnut panelling, the city at night through the blinds, the run board, the org chart with the CTO and the Chief
+Engineer at the top, the partners' desk with both their nameplates). The people and everything they touch are cels:
+heavy warm-black ink, flat colour, eyes as white ovals with dot pupils. Arms are outlined tubes (one ink stroke under one
+colour stroke), so every pose is drawn by the same hand. Colour by fill and stroke attributes only. Classes (tim, walk,
+bubble, draw, scribble, tap, smoke, ember, type, cursor, feed, head, blink, twinkle, minute, flash) are hooks the
+dashboard's CSS animates; with no CSS every scene is a complete still. Two colleagues at work, never a likeness of anyone
+real.
 """
+import math
 import os
 from html import escape
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOME = os.path.dirname(HERE)
-INK = '#141414'
+
+INK = '#17110D'      # the cel ink
+LINE = '#2B1B10'     # the background painter's line
+TYPE = "'Courier Prime', 'Courier New', Courier, monospace"
+
+# the people
+SKIN_JAMES, SKIN_JAMES_DK = '#D6A07C', '#B98461'
+SKIN_JOHN, SKIN_JOHN_DK = '#9C6B4E', '#7E5338'
+SKIN_TIM = '#EBC4A0'
+SHIRT_JAMES, SHIRT_JAMES_DK = '#F7F3EA', '#DCD6C8'
+SHIRT_JOHN, SHIRT_JOHN_DK = '#BFD3E6', '#9FB7CE'
+TIE_JAMES, TIE_JOHN = '#A8322B', '#C8962E'
+BRACES = '#2B3A63'
+TROUSERS_JAMES = '#3A3E48'
+HAIR_JAMES, HAIR_JOHN, BEARD_JOHN, HAIR_TIM = '#2A211C', '#1C1612', '#231C18', '#6B3E26'
+WHISKY, WHISKY_DK, GLASS = '#A9651F', '#7E4716', '#E4EEEC'
+MANILA, MANILA_DK = '#E6C47C', '#C9A55C'
+
+
+def f(n):
+    """A number for a path: one decimal, no trailing zero."""
+    s = f'{n:.1f}'
+    return s[:-2] if s.endswith('.0') else s
+
+
+def pts(*ps):
+    return ' L'.join(f'{f(x)},{f(y)}' for x, y in ps)
+
+
+def tube(points, w, fill, ow=2.4, ink=INK):
+    """An outlined tube along a polyline: (the ink stroke, the colour stroke). Draw every ink before every colour."""
+    d = 'M' + pts(*points)
+    return (f'<path d="{d}" fill="none" stroke="{ink}" stroke-width="{f(w + 2 * ow)}" stroke-linecap="round" stroke-linejoin="round"/>',
+            f'<path d="{d}" fill="none" stroke="{fill}" stroke-width="{f(w)}" stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def lerp(a, b, t):
+    return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+
+
+def arm(S, E, H, shirt, skin, hand=True, ow=2.4, cls=None, hold=''):
+    """A shirt-sleeved arm, sleeve rolled to the elbow: shoulder S, elbow E, hand H. `hold` is drawn in the hand."""
+    sleeve = tube([S, E], 14, shirt, ow)
+    fore_start = lerp(E, H, 0.12)
+    fore = tube([fore_start, H], 9.5, skin, ow)
+    cuff_end = lerp(E, H, 0.30)
+    cuff = tube([lerp(E, H, 0.04), cuff_end], 15.5, shirt, ow)
+    # the fold of the rolled cuff
+    ux, uy = H[0] - E[0], H[1] - E[1]
+    L = math.hypot(ux, uy) or 1
+    nx, ny = -uy / L * 7, ux / L * 7
+    m = lerp(E, H, 0.17)
+    fold = f'<path d="M{f(m[0] + nx)},{f(m[1] + ny)} L{f(m[0] - nx)},{f(m[1] - ny)}" fill="none" stroke="{INK}" stroke-width="1.3"/>'
+    s = f'<g class="{cls}">' if cls else '<g>'
+    s += sleeve[0] + fore[0] + sleeve[1] + fore[1] + cuff[0] + cuff[1] + fold
+    s += hold
+    if hand:
+        s += f'<circle cx="{f(H[0])}" cy="{f(H[1])}" r="6.2" fill="{skin}" stroke="{INK}" stroke-width="{ow}"/>'
+    return s + '</g>\n'
+
+
+# ======================================================================================== the room (painted, no ink)
+def lcg(seed):
+    while True:
+        seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF
+        yield seed / 0x7FFFFFFF
+
+
+def wall():
+    r = lcg(7)
+    s = '  <g class="room">\n'
+    s += '    <rect width="640" height="272" fill="#6B472C"/>\n'
+    # the walnut boards: a seam every 46px, two strokes of grain on each, a lighter board now and then
+    for i, x in enumerate(range(0, 640, 46)):
+        if i % 3 == 1:
+            s += f'    <rect x="{x}" y="8" width="46" height="252" fill="#704B2F"/>\n'
+        for _ in range(2):
+            gx = x + 8 + next(r) * 30
+            y0 = 14 + next(r) * 60
+            y1 = y0 + 90 + next(r) * 120
+            bend = (next(r) - 0.5) * 10
+            s += f'    <path d="M{f(gx)},{f(y0)} C{f(gx + bend)},{f(y0 + 40)} {f(gx - bend)},{f(y1 - 40)} {f(gx + bend / 2)},{f(y1)}" fill="none" stroke="#7A5536" stroke-width="1.6" stroke-linecap="round"/>\n'
+        s += f'    <rect x="{x - 1}" y="8" width="2" height="252" fill="#4B301C"/>\n'
+    s += '    <rect width="640" height="9" fill="#4A2F1C"/><rect y="9" width="640" height="2" fill="#86613F"/>\n'
+    s += '    <rect y="256" width="640" height="16" fill="#3F2717"/><rect y="256" width="640" height="2" fill="#5E3E25"/>\n'
+    # the carpet: deep teal, a darker band at the wall, a few painted dabs
+    s += '    <rect y="272" width="640" height="128" fill="#2C5A5D"/>\n'
+    s += '    <rect y="272" width="640" height="10" fill="#244B4E"/>\n'
+    for _ in range(26):
+        x = next(r) * 620
+        y = 290 + next(r) * 104
+        w = 10 + next(r) * 26
+        s += f'    <path d="M{f(x)},{f(y)} l{f(w)},0" stroke="#2F6366" stroke-width="2.2" stroke-linecap="round"/>\n'
+    return s + '  </g>\n'
+
+
+def window():
+    r = lcg(31)
+    s = f'  <g class="window" stroke="{LINE}" stroke-width="1.3">\n'
+    s += '    <rect x="398" y="24" width="224" height="190" fill="#4E321D"/>\n'
+    # the night in flat bands
+    for y, h, c in ((32, 50, '#221C42'), (82, 40, '#2E2554'), (122, 36, '#463163'), (158, 48, '#6A3F62')):
+        s += f'    <rect x="406" y="{y}" width="208" height="{h}" fill="{c}" stroke="none"/>\n'
+    s += '    <circle cx="590" cy="104" r="10" fill="#F2E6C4" stroke="none"/><circle cx="595" cy="100" r="8.5" fill="#2E2554" stroke="none"/>\n'
+    for x, y in ((430, 96), (466, 112), (540, 92), (612 - 30, 128), (452, 140), (520, 124)):
+        s += f'    <circle cx="{x}" cy="{y}" r="1.1" fill="#F3E9C6" stroke="none"/>\n'
+    # the skyline: back row, front row, a water tower, lit windows (some twinkle)
+    back = [(406, 150), (424, 132), (446, 158), (470, 120), (494, 146), (518, 128), (548, 152), (572, 136), (596, 156)]
+    for i, (x, top) in enumerate(back):
+        w = (back[i + 1][0] if i + 1 < len(back) else 614) - x
+        s += f'    <rect x="{x}" y="{top}" width="{w}" height="{206 - top}" fill="#1E2040" stroke="none"/>\n'
+    front = [(406, 172, 22), (432, 160, 26), (466, 176, 20), (492, 154, 30), (530, 170, 24), (560, 162, 28), (594, 178, 20)]
+    for x, top, w in front:
+        s += f'    <rect x="{x}" y="{top}" width="{w}" height="{206 - top}" fill="#15172E" stroke="none"/>\n'
+        for wy in range(top + 6, 202, 8):
+            for wx in range(x + 4, x + w - 4, 7):
+                v = next(r)
+                if v < 0.42:
+                    cls = ' class="twinkle"' if v < 0.05 else ''
+                    s += f'    <rect{cls} x="{wx}" y="{wy}" width="3" height="4" fill="{"#F2C14E" if v > 0.12 else "#E89B3A"}" stroke="none"/>\n'
+    s += '    <path d="M500,154 L500,144 L506,140 L512,144 L512,154 Z M502,154 L501,160 M510,154 L511,160" fill="#15172E" stroke="#15172E" stroke-width="1.4"/>\n'
+    s += '    <rect x="507" y="32" width="6" height="174" fill="#4E321D"/>\n'
+    # the venetian blinds, raised a third of the way, and the cord
+    s += '    <rect x="406" y="32" width="208" height="52" fill="#D7C49B" stroke="none"/>\n'
+    for y in range(37, 84, 5):
+        s += f'    <path d="M406,{y} L614,{y}" stroke="#9C875E" stroke-width="1.2"/>\n'
+    s += '    <rect x="404" y="82" width="212" height="6" fill="#C2AE84"/>\n'
+    s += '    <path d="M604,88 L604,150" stroke="#E8DCC0" stroke-width="1.2"/><rect x="601.5" y="150" width="5" height="9" rx="2" fill="#C2AE84"/>\n'
+    s += '    <rect x="392" y="206" width="236" height="9" fill="#8A5E38"/><rect x="392" y="206" width="236" height="2" fill="#A97A4C" stroke="none"/>\n'
+    return s + '  </g>\n'
+
+
+# The run board on the left wall: a whiteboard in an aluminium frame. Its content changes with the run.
+def board(stage):
+    s = f'  <g class="board" stroke="{LINE}" stroke-width="1.3">\n'
+    s += '    <rect x="22" y="38" width="200" height="162" rx="2" fill="#B5BAC0"/>\n'
+    s += '    <rect x="28" y="44" width="188" height="150" fill="#F4F1E7"/>\n'
+    s += '    <rect x="36" y="198" width="172" height="6" fill="#9EA4AA"/>\n'
+    for x, c in ((60, '#1F4E8C'), (76, '#B23A2E'), (92, '#2E7D4F')):
+        s += f'    <rect x="{x}" y="194" width="13" height="4" rx="1.5" fill="{c}" stroke-width="0.8"/>\n'
+    s += f'    <text x="36" y="58" font-family="{TYPE}" font-size="10" font-weight="700" letter-spacing="1" fill="#1F4E8C" stroke="none">RUN BOARD</text>\n'
+    s += '    <path d="M36,62 L102,62" stroke="#1F4E8C" stroke-width="1.4"/>\n'
+    if stage in ('idle', 'tim', 'reading'):
+        s += roadmap()
+    elif stage == 'flowchart':
+        s += flowchart(True)
+    elif stage == 'done':
+        s += flowchart(False) + pinned()
+    else:
+        s += flowchart(False)
+    return s + '  </g>\n'
+
+
+def roadmap():
+    """Before a run: last quarter's roadmap, a Gantt in three markers."""
+    s = f'    <g stroke="none" font-family="{TYPE}" font-size="7" font-weight="700" fill="#4A4A4A">\n'
+    for i, (lbl, x, w, c) in enumerate((('Q1', 60, 70, '#1F4E8C'), ('Q2', 92, 64, '#B23A2E'), ('Q3', 120, 76, '#2E7D4F'), ('Q4', 150, 52, '#1F4E8C'))):
+        y = 76 + i * 26
+        s += f'      <text x="36" y="{y + 6}">{lbl}</text><rect x="{x}" y="{y}" width="{w}" height="8" rx="2" fill="{c}"/>\n'
+    s += '    </g>\n'
+    s += '    <path d="M58,176 L208,176 M58,70 L58,180" stroke="#7C7C7C" stroke-width="1"/>\n'
+    return s
+
+
+def flowchart(draw):
+    """The run, drawn as it is composed: three lanes into the gate, the gate into main. `draw`: it draws itself."""
+    k = (lambda i: f' class="draw d{i}"') if draw else (lambda i: '')
+    blue, red, green = '#1F4E8C', '#B23A2E', '#2E7D4F'
+    s = '    <g fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n'
+    for i, y in enumerate((74, 104, 134)):
+        s += f'      <rect{k(1 + i)} x="38" y="{y}" width="38" height="20" rx="3" stroke="{blue}"/>\n'
+        s += f'      <path{k(4 + i)} d="M76,{y + 10} C96,{y + 10} 100,{116 if y != 104 else 114} 116,114" stroke="{blue}"/>\n'
+    s += f'      <path{k(7)} d="M116,114 L136,98 L156,114 L136,130 Z" stroke="{red}"/>\n'
+    s += f'      <path{k(8)} d="M156,114 L170,114 M166,110 L170,114 L166,118" stroke="{red}"/>\n'
+    s += f'      <rect{k(9)} x="172" y="102" width="38" height="24" rx="3" stroke="{green}"/>\n'
+    s += f'      <path{k(10)} d="M42,80 L66,80 M42,86 L58,86 M42,110 L68,110 M42,116 L56,116 M42,140 L64,140 M42,146 L60,146 M178,110 L202,110 M178,117 L196,117" stroke="#5A6A80" stroke-width="1.3"/>\n'
+    s += '    </g>\n'
+    s += f'    <g stroke="none" font-family="{TYPE}" font-size="7" font-weight="700">\n'
+    s += f'      <text x="128" y="117" fill="{red}">G</text><text x="176" y="138" fill="{green}">MAIN</text>\n'
+    s += '    </g>\n'
+    return s
+
+
+def pinned():
+    """Done: the composed run pinned to the board, ticked off, with the rubber stamp."""
+    return (f'    <g stroke="{INK}" stroke-width="1">\n'
+            '      <path d="M150,140 L210,136 L212,188 L152,192 Z" fill="#FFFFFF"/>\n'
+            '      <circle cx="180" cy="139" r="2.6" fill="#B23A2E"/>\n'
+            '      <path d="M158,152 L161,155 L166,149 M158,163 L161,166 L166,160 M158,174 L161,177 L166,171" fill="none" stroke="#2E7D4F" stroke-width="1.6"/>\n'
+            '      <path d="M170,152 L204,150 M170,163 L200,161 M170,174 L204,172" fill="none" stroke="#9A9A9A" stroke-width="1.2"/>\n'
+            '      <g transform="rotate(-12 182 182)"><rect x="160" y="175" width="44" height="13" rx="2" fill="none" stroke="#B23A2E" stroke-width="1.6"/>\n'
+            f'      <text x="182" y="185" text-anchor="middle" font-family="{TYPE}" font-size="8" font-weight="700" fill="#B23A2E" stroke="none">COMPOSED</text></g>\n'
+            '    </g>\n')
+
+
+def org_chart():
+    """The leadership: the CTO at the top, his Chief Engineer under him, Tim beside, five department heads below."""
+    s = f'  <g class="org" stroke="{LINE}" stroke-width="1.2">\n'
+    s += '    <rect x="240" y="42" width="154" height="112" fill="#B8893A"/>\n'
+    s += '    <rect x="245" y="47" width="144" height="102" fill="#EFE6CE"/>\n'
+    t = f'font-family="{TYPE}" font-weight="700" text-anchor="middle" fill="#3A2A18" stroke="none"'
+    s += f'    <text x="317" y="57" font-size="6" letter-spacing="1.2" {t}>ORGANIZATION</text>\n'
+    s += '    <path d="M317,76 L317,84 M317,98 L317,106 M262,106 L372,106 M262,106 L262,112 M289.5,106 L289.5,112 M317,106 L317,112 M344.5,106 L344.5,112 M372,106 L372,112 M292,69 L282,69" fill="none" stroke="#3A2A18" stroke-width="1"/>\n'
+    s += '    <rect x="292" y="62" width="50" height="14" fill="#D9A441"/>\n'
+    s += f'    <text x="317" y="72" font-size="8" {t}>CTO</text>\n'
+    s += '    <rect x="280" y="84" width="74" height="14" fill="#D9A441"/>\n'
+    s += f'    <text x="317" y="93.5" font-size="6" {t}>CHIEF ENGINEER</text>\n'
+    s += '    <rect x="252" y="63" width="30" height="12" fill="#FFF8E6"/>\n'
+    s += f'    <text x="267" y="71.5" font-size="5.5" {t}>EA</text>\n'
+    for x, lbl in ((262, 'BE'), (289.5, 'FE'), (317, 'DB'), (344.5, 'QA'), (372, 'API')):
+        s += f'    <rect x="{x - 11}" y="112" width="22" height="12" fill="#FFF8E6"/>\n'
+        s += f'    <text x="{x}" y="120.5" font-size="5.5" {t}>{lbl}</text>\n'
+    s += '    <path d="M254,134 L380,134 M254,140 L346,140" fill="none" stroke="#C7B994" stroke-width="1.4"/>\n'
+    return s + '  </g>\n'
+
+
+def clock():
+    """Ten to eleven at night. The minute hand moves when the page animates it."""
+    cx, cy = 317, 23
+    s = f'  <g class="clock" stroke="{LINE}" stroke-width="1.2">\n'
+    s += f'    <circle cx="{cx}" cy="{cy}" r="13" fill="#C9A24A"/><circle cx="{cx}" cy="{cy}" r="10.5" fill="#F3EBD6"/>\n'
+    for i in range(12):
+        a = math.radians(i * 30)
+        s += f'    <path d="M{f(cx + 8.6 * math.sin(a))},{f(cy - 8.6 * math.cos(a))} L{f(cx + 10 * math.sin(a))},{f(cy - 10 * math.cos(a))}" stroke="#3A2A18" stroke-width="1"/>\n'
+    h, m = math.radians(325), math.radians(300)
+    s += f'    <path d="M{cx},{cy} L{f(cx + 5.5 * math.sin(h))},{f(cy - 5.5 * math.cos(h))}" stroke="{INK}" stroke-width="2" stroke-linecap="round"/>\n'
+    s += f'    <path class="minute" d="M{cx},{cy} L{f(cx + 8.4 * math.sin(m))},{f(cy - 8.4 * math.cos(m))}" stroke="{INK}" stroke-width="1.4" stroke-linecap="round"/>\n'
+    s += f'    <circle cx="{cx}" cy="{cy}" r="1.4" fill="{INK}" stroke="none"/>\n'
+    return s + '  </g>\n'
+
+
+def credenza():
+    """Against the wall under the org chart: the walnut credenza, the banker's lamp, the spec binders, the decanter."""
+    s = '  <ellipse cx="256" cy="204" rx="46" ry="34" fill="#F2D49A" fill-opacity="0.16"/>\n'
+    s += f'  <g class="credenza" stroke="{LINE}" stroke-width="1.3">\n'
+    s += '    <rect x="234" y="223" width="166" height="44" fill="#5B3A22"/>\n'
+    for x in range(240, 398, 6):
+        s += f'    <path d="M{x},226 L{x},264" stroke="#664429" stroke-width="2"/>\n'
+    s += '    <path d="M289,223 L289,267 M345,223 L345,267" stroke-width="1.6"/>\n'
+    for x in (284, 294, 340, 350):
+        s += f'    <rect x="{x - 1.5}" y="238" width="3" height="12" rx="1.5" fill="#C9A24A" stroke-width="0.8"/>\n'
+    s += '    <path d="M240,267 L243,276 L246,267 Z M388,267 L391,276 L394,267 Z" fill="#3F2717"/>\n'
+    s += '    <rect x="228" y="216" width="178" height="7" fill="#7E5634"/>\n'
+    # the lamp
+    s += '    <ellipse cx="252" cy="215" rx="10" ry="2.8" fill="#C9A24A"/><rect x="250.6" y="196" width="2.8" height="18" fill="#C9A24A" stroke-width="0.8"/>\n'
+    s += '    <path d="M236,201 Q252,186 268,201 L266,205 L238,205 Z" fill="#2E6A49"/>\n'
+    s += '    <path d="M241,198 Q252,190 263,198" fill="none" stroke="#4E9A70" stroke-width="1.4"/>\n'
+    s += '    <path d="M262,205 L262,211" stroke="#C9A24A" stroke-width="1"/>\n'
+    # the spec binders
+    for i, c in enumerate(('#B23A2E', '#D9A441', '#2F6F73', '#3A3E48')):
+        x = 274 + i * 8
+        s += f'    <rect x="{x}" y="{193 + (i % 2) * 2}" width="7.5" height="{23 - (i % 2) * 2}" fill="{c}"/><rect x="{x + 1.5}" y="{198 + (i % 2) * 2}" width="4.5" height="5" fill="#EFE6CE" stroke-width="0.6"/>\n'
+    # the decanter and a spare glass
+    s += f'    <path d="M368,216 C366,207 368,199 374,195 L374,189 L382,189 L382,195 C388,199 390,207 388,216 Z" fill="{GLASS}" fill-opacity="0.55"/>\n'
+    s += f'    <path d="M367.6,216 C366.8,211 367.2,207 368.4,204 L387.6,204 C388.8,207 389.2,211 388.4,216 Z" fill="{WHISKY}" stroke="none"/>\n'
+    s += f'    <path d="M368,216 C366,207 368,199 374,195 L374,189 L382,189 L382,195 C388,199 390,207 388,216 Z" fill="none"/>\n'
+    s += f'    <circle cx="378" cy="186" r="3.6" fill="{GLASS}"/><path d="M372,200 L373,212" stroke="#FFFFFF" stroke-width="1.4" stroke-opacity="0.7"/>\n'
+    s += '  </g>\n'
+    return s
+
+
+# ======================================================================================== the desk and what is on it
+def glass(x, y, s=1.0, cls=None):
+    """A rocks glass, two fingers of whisky and an ice cube; its base centred at (x, y)."""
+    c = f' class="{cls}"' if cls else ''
+    return (f'<g{c} transform="translate({f(x)} {f(y)}) scale({s})" stroke="{INK}" stroke-width="1.8" stroke-linejoin="round">'
+            f'<path d="M-7.5,-15 L7.5,-15 L6.5,0 L-6.5,0 Z" fill="{GLASS}" fill-opacity="0.7"/>'
+            f'<path d="M-7,-8.5 L7,-8.5 L6.5,-2 L-6.5,-2 Z" fill="{WHISKY}" stroke="none"/>'
+            f'<path d="M-6.6,-8.5 L6.6,-8.5" stroke="{WHISKY_DK}" stroke-width="1.4"/>'
+            '<rect x="-3.5" y="-12" width="5" height="5" rx="1" fill="#F4FAF9" stroke-width="1" transform="rotate(12 -1 -9.5)"/>'
+            '<path d="M-6.5,-2 L6.5,-2" stroke-width="1.2"/>'
+            f'<path d="M-7.5,-15 L7.5,-15 L6.5,0 L-6.5,0 Z" fill="none"/>'
+            '<path d="M-4.5,-13 L-4,-4" stroke="#FFFFFF" stroke-width="1.2" stroke-opacity="0.8"/></g>')
+
+
+def pail(x, y, s=1.0, open_=False, sticks=False):
+    """A takeout pail, its base centred at (x, y): white folded box, red pagoda, wire handle."""
+    g = f'<g transform="translate({f(x)} {f(y)}) scale({s})" stroke="{INK}" stroke-width="2" stroke-linejoin="round">'
+    g += '<path d="M-10,-19 L10,-19 L7,0 L-7,0 Z" fill="#FBF8F0"/>'
+    g += '<path d="M3,-19 L10,-19 L7,0 L2,0 Z" fill="#E6E0D2" stroke="none"/>'
+    g += '<path d="M-10,-19 L10,-19 L7,0 L-7,0 Z" fill="none"/>'
+    if open_:
+        g += '<path d="M-10,-19 L-13,-26 L-2,-22 Z M10,-19 L13,-26 L2,-22 Z" fill="#FBF8F0" stroke-width="1.5"/>'
+        g += '<path d="M-9,-19 Q0,-24 9,-19" fill="#D9A85E" stroke-width="1.3"/>'
+    else:
+        g += '<path d="M-10,-19 L0,-27 L10,-19 Z" fill="#FBF8F0" stroke-width="1.5"/>'
+        g += '<path d="M-8,-22 Q0,-35 8,-22" fill="none" stroke="#6E737B" stroke-width="1.3"/>'
+    g += '<path d="M-4,-8 L4,-8 M-3,-8 L-3,-12 L3,-12 L3,-8 M-5,-12 L0,-16 L5,-12" fill="none" stroke="#B23A2E" stroke-width="1.3"/>'
+    if sticks:
+        g += '<path d="M1,-20 L10,-40 M4,-20 L15,-38" fill="none" stroke="#C49A62" stroke-width="2"/>'
+    return g + '</g>'
+
+
+def cigar(a, b, cls):
+    """A cigar resting on the ashtray: mouth end a, lit end b; ash, ember, and a ribbon of smoke rising off it."""
+    s = ''.join(tube([a, b], 4.6, '#6E4024', ow=1.6))
+    band = lerp(a, b, 0.32)
+    s += f'<circle cx="{f(band[0])}" cy="{f(band[1])}" r="2.7" fill="#D9A441" stroke="{INK}" stroke-width="1"/>'
+    ash = lerp(a, b, 0.88)
+    s += ''.join(tube([ash, b], 4.6, '#8E8A84', ow=1.2))
+    s += f'<circle class="ember" cx="{f(b[0])}" cy="{f(b[1])}" r="2.1" fill="#E86A2E" stroke="none"/>'
+    x, y = b
+    s += (f'<path class="smoke {cls}" d="M{f(x)},{f(y - 3)} C{f(x - 8)},{f(y - 14)} {f(x + 8)},{f(y - 22)} {f(x)},{f(y - 34)} '
+          f'C{f(x - 7)},{f(y - 44)} {f(x + 6)},{f(y - 52)} {f(x + 2)},{f(y - 62)}" fill="none" stroke="#E9E2D6" stroke-width="3.2" '
+          'stroke-linecap="round" stroke-opacity="0.6"/>')
+    return s
+
+
+def terminal(stage):
+    """The PC on the desk: a beige system unit with two floppy drives, the green screen on top of it."""
+    s = f'  <g class="pc" stroke="{INK}" stroke-width="2" stroke-linejoin="round">\n'
+    s += '    <rect x="172" y="291" width="76" height="21" rx="2" fill="#D8CCB0"/>\n'
+    s += '    <rect x="204" y="295" width="38" height="13" rx="1" fill="#C4B796" stroke-width="1.3"/>\n'
+    s += '    <path d="M207,299 L239,299 M207,305 L239,305" stroke="#2A2620" stroke-width="2"/>\n'
+    s += '    <circle cx="181" cy="305" r="1.8" fill="#D9452E" stroke="none"/><path d="M178,297 L196,297 M178,300 L196,300" stroke="#B4A788" stroke-width="1"/>\n'
+    s += '    <rect x="178" y="234" width="64" height="57" rx="7" fill="#DCD1B6"/>\n'
+    s += '    <path d="M228,236 C238,238 240,244 240,256 L240,286 C240,289 238,290 236,290 L230,290 Z" fill="#C9BD9F" stroke="none"/>\n'
+    s += '    <rect x="184" y="240" width="52" height="45" rx="5" fill="#2B2A26"/>\n'
+    s += '    <rect x="188" y="244" width="44" height="37" rx="4" fill="#0E1A12" stroke="none"/>\n'
+    s += '    <rect x="178" y="234" width="64" height="57" rx="7" fill="none"/>\n'
+    s += '    <circle cx="232" cy="288" r="1.4" fill="#4DFF88" stroke="none"/>\n'
+    # the phosphor: a few lines of green, the cursor. Reading and spec type their lines in; failed flashes an error.
+    g = '#4DFF88'
+    lines = [(192, 249, 26), (192, 255, 34), (192, 261, 18), (192, 267, 30)]
+    typing = stage in ('reading', 'spec')
+    s += '    <g stroke="none">\n'
+    for i, (x, y, w) in enumerate(lines):
+        cls = f' class="type t{i + 1}"' if typing else ''
+        s += f'      <rect{cls} x="{x}" y="{y}" width="{w}" height="2.6" fill="{g}" fill-opacity="0.9"/>\n'
+    if stage == 'failed':
+        s += f'      <text class="flash" x="192" y="278.5" font-family="{TYPE}" font-size="7" font-weight="700" fill="{g}">?ERROR</text>\n'
+    elif stage == 'done':
+        s += f'      <text x="192" y="278.5" font-family="{TYPE}" font-size="7" font-weight="700" fill="{g}">OK.</text>\n'
+        s += f'      <rect class="cursor" x="208" y="273" width="4" height="6" fill="{g}"/>\n'
+    else:
+        s += f'      <rect class="cursor" x="192" y="273" width="4" height="6" fill="{g}"/>\n'
+    s += '    </g>\n'
+    s += '    <path d="M192,246 C200,244 210,244 216,245" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>\n'
+    return s + '  </g>\n'
+
+
+def printer(stage):
+    """The dot-matrix printer: green-bar paper standing up behind it, the print head that runs while it prints."""
+    s = f'  <g class="printer" stroke="{INK}" stroke-width="2" stroke-linejoin="round">\n'
+    s += '    <path d="M258,296 L258,276 L292,276 L292,296 Z" fill="#FFFFFF" stroke-width="1.4"/>\n'
+    s += '    <path d="M260,281 L290,281 M260,287 L290,287" stroke="#BFE3BC" stroke-width="3"/>\n'
+    s += '    <path d="M255,312 L252,296 L298,296 L295,312 Z" fill="#D8CCB0"/>\n'
+    s += '    <rect x="258" y="298" width="34" height="4" fill="#3A372F" stroke-width="1"/>\n'
+    cls = ' class="printhead"' if stage == 'spec' else ''
+    s += f'    <rect{cls} x="262" y="297" width="6" height="6" fill="#8A8170" stroke-width="1"/>\n'
+    s += '    <path d="M258,307 L268,307" stroke="#B4A788" stroke-width="1"/>\n'
+    return s + '  </g>\n'
+
+
+def printout():
+    """Spec: the printout feeding off the front of the desk and folding onto the carpet."""
+    s = f'  <g stroke="{INK}" stroke-width="1.4" stroke-linejoin="round">\n'
+    s += '    <g class="feed">\n'
+    s += '      <path d="M258,318 L292,318 L292,378 L258,378 Z" fill="#FFFFFF"/>\n'
+    for y in range(324, 376, 10):
+        s += f'      <rect x="262" y="{y}" width="26" height="4" fill="#BFE3BC" stroke="none"/>\n'
+    for y in range(322, 378, 6):
+        s += f'      <circle cx="260.5" cy="{y}" r="0.9" fill="#9A9A9A" stroke="none"/><circle cx="289.5" cy="{y}" r="0.9" fill="#9A9A9A" stroke="none"/>\n'
+    s += '    </g>\n'
+    s += '    <path d="M252,394 L298,394 L300,386 L254,386 Z" fill="#FFFFFF"/><path d="M254,386 L300,386 L296,380 L256,380 Z" fill="#F2F2EC"/>\n'
+    s += '    <path d="M258,378 L256,380 M292,378 L296,380" fill="none"/>\n'
+    s += '    <path d="M262,389 L292,389" stroke="#BFE3BC" stroke-width="2.4"/>\n'
+    return s + '  </g>\n'
+
+
+def keyboard():
+    s = f'  <g stroke="{INK}" stroke-width="1.8" stroke-linejoin="round">\n'
+    s += '    <path d="M296,305 L364,305 L369,316 L291,316 Z" fill="#D8CCB0"/>\n'
+    for i, y in enumerate((308.5, 311, 313.5)):
+        x0 = 297 - i * 1.3
+        s += f'    <path d="M{f(x0)},{y} L{f(x0 + 68 + i * 2.6)},{y}" stroke="#7E7461" stroke-width="1.5" stroke-dasharray="3.2 1.6"/>\n'
+    return s + '  </g>\n'
+
+
+def desk_top():
+    return (f'  <g stroke="{INK}" stroke-width="2" stroke-linejoin="round">\n'
+            '    <path d="M172,304 L488,304 L498,318 L162,318 Z" fill="#8E5D36"/>\n'
+            '    <path d="M190,309 L300,309 M380,313 L470,313" stroke="#9E6B41" stroke-width="1.4"/>\n'
+            '  </g>\n')
+
+
+def desk_front():
+    s = f'  <g stroke="{INK}" stroke-width="2" stroke-linejoin="round">\n'
+    s += '    <path d="M150,393 L510,393 L522,399 L138,399 Z" fill="#1F4245" stroke="none"/>\n'
+    s += '    <rect x="164" y="324" width="332" height="69" fill="#6C4327"/>\n'
+    s += '    <rect x="160" y="318" width="340" height="7" fill="#A36D42"/>\n'
+    for x0 in (170, 398):
+        s += f'    <rect x="{x0}" y="329" width="92" height="60" fill="#76492A" stroke-width="1.6"/>\n'
+        for y in (349, 369):
+            s += f'    <path d="M{x0},{y} L{x0 + 92},{y}" stroke-width="1.6"/>\n'
+        for y in (339, 359, 379):
+            s += f'    <rect x="{x0 + 38}" y="{y - 2}" width="16" height="4" rx="2" fill="#D2A64A" stroke-width="1.2"/>\n'
+    s += '    <rect x="268" y="329" width="124" height="60" fill="#5A371F" stroke-width="1.6"/>\n'
+    # the two nameplates, side by side on the one desk
+    for y, name in ((336, 'JAMES · CTO'), (355, 'JOHN · CHIEF ENGINEER')):
+        s += f'    <rect x="295" y="{y}" width="96" height="14" rx="1.5" fill="#D1A447" stroke-width="1.3"/>\n'
+        s += f'    <text x="343" y="{y + 9.6}" text-anchor="middle" font-family="{TYPE}" font-size="6.6" font-weight="700" fill="#3A2A10" stroke="none">{escape(name)}</text>\n'
+    return s + '  </g>\n'
+
+
+def desk_items(stage, james_glass_on_desk):
+    s = '  <g>\n'
+    s += '    ' + glass(378, 313) + '\n' if stage not in ('done',) else ''
+    # the ashtray and the two cigars
+    s += (f'    <g stroke="{INK}" stroke-width="1.8" stroke-linejoin="round">'
+          '<path d="M392,313 L420,313 L417,306 L395,306 Z" fill="#C68A3A" fill-opacity="0.9"/>'
+          '<path d="M395,306 Q406,303 417,306" fill="none" stroke-width="1.2"/>'
+          '<path d="M398,311 L414,311" stroke="#E7B66A" stroke-width="1.4"/></g>\n')
+    s += '    ' + cigar((402, 305), (384, 298), 's1') + '\n'
+    s += '    ' + cigar((410, 305), (429, 297), 's2') + '\n'
+    if james_glass_on_desk:
+        s += '    ' + glass(442, 313) + '\n'
+    # dinner
+    if stage != 'flowchart':
+        s += '    ' + pail(458, 312, 0.95, open_=stage not in ('idle', 'tim'), sticks=stage not in ('idle', 'tim')) + '\n'
+    s += '    ' + pail(478, 313, 1.0) + '\n'
+    s += '    ' + pail(466, 316, 0.9, open_=True) + '\n'
+    return s + '  </g>\n'
+
+
+# ======================================================================================== John, Chief Engineer (seated)
+# Local (0, 0) is where the desk top's back edge crosses his middle; he sits at (330, 304).
+JOHN_AT = (330, 304)
+
+
+def john_chair():
+    return (f'  <g stroke="{INK}" stroke-width="2" stroke-linejoin="round">\n'
+            '    <path d="M286,304 L286,236 C286,206 374,206 374,236 L374,304 Z" fill="#6E2A22"/>\n'
+            '    <path d="M292,300 L292,238 C292,214 368,214 368,238 L368,300" fill="none" stroke="#8A3A30" stroke-width="2"/>\n'
+            + ''.join(f'    <circle cx="{x}" cy="{y}" r="1.5" fill="#4A1A14" stroke="none"/>\n' for y in (226, 244, 262) for x in (300, 316, 344, 360) if not (300 < x < 362 and y > 236))
+            + '  </g>\n')
+
+
+def john_head(look='front', expr='smile', cls=''):
+    dx, dy = {'front': (0, 0), 'left': (-1.8, 0.3), 'right': (1.8, 0.3), 'down': (0, 1.4), 'up': (0.6, -1.3)}[look]
+    s = f'    <g class="head{(" " + cls) if cls else ""}">\n'
+    s += f'    <ellipse cx="-18.5" cy="-86" rx="3.4" ry="5.4" fill="{SKIN_JOHN}"/><ellipse cx="18.5" cy="-86" rx="3.4" ry="5.4" fill="{SKIN_JOHN}"/>\n'
+    s += f'    <path d="M-18,-90 C-18,-106 -10,-112 0,-112 C10,-112 18,-106 18,-90 C18,-74 12,-62 0,-62 C-12,-62 -18,-74 -18,-90 Z" fill="{SKIN_JOHN}"/>\n'
+    # close-cropped hair
+    s += f'    <path d="M-18.5,-91 C-20,-108 -10,-115 0,-115 C10,-115 20,-108 18.5,-91 C16,-99 10,-103 0,-103 C-10,-103 -16,-99 -18.5,-91 Z" fill="{HAIR_JOHN}"/>\n'
+    # the full beard and the moustache
+    s += f'    <path d="M-18,-88 C-18.5,-70 -10,-59 0,-59 C10,-59 18.5,-70 18,-88 C16,-80 12,-76 8,-75.5 C4,-78 -4,-78 -8,-75.5 C-12,-76 -16,-80 -18,-88 Z" fill="{BEARD_JOHN}"/>\n'
+    s += f'    <path d="M-8,-76 Q0,-81 8,-76 Q4,-74.5 0,-75.5 Q-4,-74.5 -8,-76 Z" fill="{BEARD_JOHN}" stroke-width="1.2"/>\n'
+    if expr == 'talk':
+        s += '    <path d="M-5,-72.5 Q0,-71 5,-72.5 Q3,-66.5 0,-66.5 Q-3,-66.5 -5,-72.5 Z" fill="#5A2320" stroke="#E2C9B8" stroke-width="1.2"/>\n'
+    elif expr == 'frown':
+        s += '    <path d="M-4.5,-69.5 Q0,-72.5 4.5,-69.5" fill="none" stroke="#E2C9B8" stroke-width="1.5"/>\n'
+    else:
+        s += '    <path d="M-5,-71.5 Q0,-68.5 5,-71.5" fill="none" stroke="#E2C9B8" stroke-width="1.5"/>\n'
+    s += f'    <path d="M-1.5,-88 Q-4.5,-80 -1,-79 Q2,-78.5 3.5,-80.5" fill="{SKIN_JOHN_DK}" stroke-width="1.5"/>\n'
+    # horn-rimmed glasses, the lenses read as the whites of his eyes
+    s += '    <path d="M-2.5,-92 Q0,-94 2.5,-92" fill="none" stroke="#2B1A10" stroke-width="2.2"/>\n'
+    s += '    <path d="M-14.5,-93 L-18.5,-90 M14.5,-93 L18.5,-90" fill="none" stroke="#2B1A10" stroke-width="2"/>\n'
+    for x in (-8.5, 8.5):
+        s += f'    <rect x="{x - 6}" y="-98" width="12" height="11" rx="3.5" fill="#FFFFFF" stroke="#2B1A10" stroke-width="2.6"/>\n'
+        s += f'    <circle cx="{f(x + dx)}" cy="{f(-92.3 + dy)}" r="1.9" fill="{INK}" stroke="none"/>\n'
+    s += f'    <g class="blink" opacity="0"><rect x="-13.2" y="-96.7" width="9.4" height="8.4" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/><rect x="3.8" y="-96.7" width="9.4" height="8.4" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/>'
+    s += '<path d="M-13,-91.5 L-4,-91.5 M4,-91.5 L13,-91.5" stroke-width="1.4"/></g>\n'
+    brow = {'frown': ('M-14,-101 L-4,-99', 'M4,-99 L14,-101'), 'talk': ('M-14,-102.5 L-4,-103.5', 'M4,-103.5 L14,-102.5')}.get(
+        expr, ('M-14,-101.5 L-4,-102.5', 'M4,-102.5 L14,-101.5'))
+    s += f'    <path d="{brow[0]} {brow[1]}" fill="none" stroke-width="2.6"/>\n'
+    # the pencil behind his ear
+    s += f'    <g>{"".join(tube([(10, -103), (30, -90)], 3.2, "#E8C34A", ow=1.3))}<path d="M28.5,-91 L33,-88 L30.5,-92.5 Z" fill="#3A2A18" stroke-width="0.8"/><path d="M10,-103 L13,-101" stroke="#E98A8A" stroke-width="3.2"/></g>\n'
+    return s + '    </g>\n'
+
+
+def john_torso():
+    s = f'    <path d="M-7,-64 L-7,-52 L7,-52 L7,-64 Z" fill="{SKIN_JOHN}"/>\n'
+    s += f'    <path d="M-10,-57 C-24,-56 -33,-52 -36,-45 C-38,-30 -37,-12 -35,6 L35,6 C37,-12 38,-30 36,-45 C33,-52 24,-56 10,-57 Z" fill="{SHIRT_JOHN}"/>\n'
+    s += f'    <path d="M-6,-57 L0,-47 L6,-57 Z" fill="{SKIN_JOHN}" stroke-width="1.4"/>\n'
+    # the loosened knit tie
+    s += f'    <path d="M-3.4,-49 L3.4,-49 L2.6,-42.5 L-2.6,-42.5 Z" fill="{TIE_JOHN}"/>\n'
+    s += f'    <path d="M-2.6,-42.5 L2.6,-42.5 L5.5,4 L-5.5,4 Z" fill="{TIE_JOHN}"/>\n'
+    s += '    <path d="M-3,-36 L3,-36 M-3.6,-28 L3.6,-28 M-4.2,-20 L4.2,-20 M-4.8,-12 L4.8,-12" stroke="#A97A22" stroke-width="1.2"/>\n'
+    s += f'    <path d="M-10,-57 L-1,-48 L-11,-45 L-14,-53 Z M10,-57 L1,-48 L11,-45 L14,-53 Z" fill="{SHIRT_JOHN}" stroke-width="1.6"/>\n'
+    # the pocket and its pocket protector: three pens
+    s += f'    <path d="M12,-34 L27,-34 L27,-20 L12,-20 Z" fill="{SHIRT_JOHN_DK}" stroke-width="1.4"/>\n'
+    for x, c in ((15, '#B23A2E'), (19, '#1F4E8C'), (23, INK)):
+        s += f'    <rect x="{x - 1.3}" y="-40" width="2.6" height="9" rx="1" fill="{c}" stroke-width="0.9"/>\n'
+    s += '    <path d="M12.5,-33 L26.5,-33 L26.5,-27 L12.5,-27 Z" fill="#F4F1EA" stroke-width="1.2"/>\n'
+    s += f'    <path d="M-30,-20 Q-26,-17 -22,-20 M20,-4 Q24,-1 28,-4" fill="none" stroke="{SHIRT_JOHN_DK}" stroke-width="1.4"/>\n'
+    return s
+
+
+def john_body(look, expr, cls=''):
+    x, y = JOHN_AT
+    s = f'  <g class="john" transform="translate({x} {y})" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+    s += john_torso() + john_head(look, expr, cls)
+    return s + '  </g>\n'
+
+
+SJL, SJR = (-32, -45), (32, -45)
+
+
+def john_arms(stage):
+    """What his hands are doing, drawn over the desk top."""
+    x, y = JOHN_AT
+    s = f'  <g transform="translate({x} {y})" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+    key_l, key_r = (-16, 6), (16, 7)
+    on_desk_l = arm(SJL, (-42, -6), key_l, SHIRT_JOHN, SKIN_JOHN)
+    on_desk_r = arm(SJR, (42, -6), key_r, SHIRT_JOHN, SKIN_JOHN)
+    if stage in ('idle', 'spec'):
+        s += arm(SJL, (-42, -6), key_l, SHIRT_JOHN, SKIN_JOHN, cls='tap tap-l')
+        s += arm(SJR, (42, -6), key_r, SHIRT_JOHN, SKIN_JOHN, cls='tap tap-r')
+    elif stage == 'tim':
+        s += on_desk_l + on_desk_r
+    elif stage == 'reading':
+        s += on_desk_l
+        s += arm(SJR, (38, -6), (9, -60), SHIRT_JOHN, SKIN_JOHN)
+    elif stage == 'flowchart':
+        s += arm(SJL, (-40, -8), (-15, -22), SHIRT_JOHN, SKIN_JOHN, hand=False,
+                 hold=pail(-15, -10, 0.9, open_=True) + f'<circle cx="-15" cy="-20" r="6.2" fill="{SKIN_JOHN}" stroke="{INK}" stroke-width="2.4"/>')
+        s += arm(SJR, (42, -8), (17, -54), SHIRT_JOHN, SKIN_JOHN,
+                 hold='<path d="M14,-52 L2,-70 M18,-52 L8,-72" fill="none" stroke="#C49A62" stroke-width="2"/>')
+    elif stage == 'consulting':
+        s += on_desk_l
+        hold = ''.join(tube([(56, -96), (64, -122)], 3.2, '#E8C34A', ow=1.3)) + '<path d="M62.6,-121 L66,-128 L66.2,-120 Z" fill="#3A2A18" stroke-width="0.8"/>'
+        s += arm(SJR, (56, -58), (57, -96), SHIRT_JOHN, SKIN_JOHN, cls='nod', hold=hold)
+    elif stage == 'done':
+        s += on_desk_l
+        s += arm(SJR, (54, -56), (51, -94), SHIRT_JOHN, SKIN_JOHN, cls='toast', hold=glass(51, -94, 1.05))
+    elif stage == 'failed':
+        s += on_desk_r
+        s += arm(SJL, (-52, -44), (-13, -96), SHIRT_JOHN, SKIN_JOHN)
+    return s + '  </g>\n'
+
+
+# ======================================================================================== James, CTO (standing)
+# Local (0, 0) is between his feet.
+def james_head(look='front', expr='smile'):
+    dx, dy = {'front': (0, 0), 'left': (-1.7, 0.2), 'right': (1.7, 0.2), 'down': (-0.6, 1.5), 'up': (0.6, -1.3)}[look]
+    s = '    <g class="head">\n'
+    s += f'    <path d="M-7,-200 L-7.5,-184 L7.5,-184 L7,-200 Z" fill="{SKIN_JAMES}"/>\n'
+    s += f'    <path d="M-7,-196 L7,-196 L7,-191 Q0,-188 -7,-191 Z" fill="{SKIN_JAMES_DK}" stroke="none"/>\n'
+    s += f'    <ellipse cx="-16.5" cy="-219" rx="3.4" ry="5.6" fill="{SKIN_JAMES}"/><ellipse cx="16.5" cy="-219" rx="3.4" ry="5.6" fill="{SKIN_JAMES}"/>\n'
+    # the square jaw
+    s += f'    <path d="M-15.5,-236 L-15.8,-212 C-15.8,-203 -11,-196 -4,-195 L4,-195 C11,-196 15.8,-203 15.8,-212 L15.5,-236 Z" fill="{SKIN_JAMES}"/>\n'
+    # slicked back, silver at the temples
+    s += f'    <path d="M-16.5,-222 C-19.5,-238 -12,-250 2,-250 C15,-250 20.5,-240 16.5,-222 C15.5,-230 12,-235 7,-236 C2,-240 -6,-240 -10,-236 C-13,-233 -15,-228 -16.5,-222 Z" fill="{HAIR_JAMES}"/>\n'
+    s += '    <path d="M-10,-238 C-5,-247 7,-248 13,-240" fill="none" stroke="#4A3B30" stroke-width="1.6"/>\n'
+    s += '    <path d="M-16.5,-223 C-17,-227 -16.5,-230 -15.5,-232 L-14,-226 Z M16.5,-223 C17,-227 16.5,-230 15.5,-232 L14,-226 Z" fill="#B3ADA5" stroke-width="1.2"/>\n'
+    # eyes: two white ovals that touch, dot pupils
+    for ex in (-4.6, 4.6):
+        s += f'    <ellipse cx="{ex}" cy="-221" rx="4.4" ry="5.6" fill="#FFFFFF" stroke-width="1.8"/>\n'
+        s += f'    <circle cx="{f(ex + dx)}" cy="{f(-219 + dy)}" r="1.7" fill="{INK}" stroke="none"/>\n'
+        # the heavy upper lid: the calm of a man who has signed off on worse
+        s += f'    <path d="M{f(ex - 4.4)},-222.6 C{f(ex - 4.4)},-229.4 {f(ex + 4.4)},-229.4 {f(ex + 4.4)},-222.6 Q{f(ex)},-221.4 {f(ex - 4.4)},-222.6 Z" fill="{SKIN_JAMES}" stroke-width="1.8"/>\n'
+    s += f'    <g class="blink" opacity="0"><ellipse cx="-4.6" cy="-221" rx="4.4" ry="5.6" fill="{SKIN_JAMES}" stroke-width="1.8"/><ellipse cx="4.6" cy="-221" rx="4.4" ry="5.6" fill="{SKIN_JAMES}" stroke-width="1.8"/></g>\n'
+    brow = {'stern': 'M-10,-230 L-2,-228 M2,-228 L10,-230', 'talk': 'M-10,-231 L-2,-232 M2,-232 L10,-231'}.get(expr, 'M-10,-230.5 L-2,-231.5 M2,-231.5 L10,-229.5')
+    s += f'    <path d="{brow}" fill="none" stroke-width="2.8"/>\n'
+    s += f'    <path d="M{f(0.5 + dx * 0.6)},-215 Q{f(5 + dx * 0.6)},-207 {f(1 + dx * 0.6)},-206 Q{f(-1.5 + dx * 0.6)},-205.6 {f(-3 + dx * 0.6)},-207" fill="none" stroke-width="1.6"/>\n'
+    mx = dx * 0.5
+    if expr == 'talk':
+        s += f'    <path d="M{f(-6 + mx)},-202.5 Q{f(mx)},-200.5 {f(6 + mx)},-203 Q{f(3 + mx)},-196 {f(mx)},-196.5 Q{f(-4 + mx)},-197.5 {f(-6 + mx)},-202.5 Z" fill="#5A2320" stroke-width="1.6"/>\n'
+        s += f'    <path d="M{f(-3.5 + mx)},-201.8 L{f(3.5 + mx)},-202" stroke="#FFFFFF" stroke-width="1.4"/>\n'
+    elif expr == 'stern':
+        s += f'    <path d="M{f(-5 + mx)},-201 L{f(5 + mx)},-201.5" fill="none" stroke-width="1.8"/>\n'
+    else:
+        s += f'    <path d="M{f(-6 + mx)},-201.5 Q{f(mx)},-199 {f(6.5 + mx)},-203.5" fill="none" stroke-width="1.8"/><path d="M{f(6.5 + mx)},-203.5 L{f(7.5 + mx)},-205" stroke-width="1.4"/>\n'
+    s += '    <path d="M-2.5,-196.6 Q0,-195.6 2.5,-196.6" fill="none" stroke="#9A6A4C" stroke-width="1.2"/>\n'
+    return s + '    </g>\n'
+
+
+def james_torso():
+    s = f'    <path d="M-9,-190 C-19,-189 -29,-186 -32,-180 C-34,-160 -31,-135 -25,-112 L25,-112 C31,-135 34,-160 32,-180 C29,-186 19,-189 9,-190 Z" fill="{SHIRT_JAMES}"/>\n'
+    s += f'    <path d="M-20,-140 Q-14,-136 -10,-140 M12,-160 Q16,-157 20,-160 M-18,-118 Q-14,-114 -10,-118 M12,-118 Q16,-114 20,-118" fill="none" stroke="{SHIRT_JAMES_DK}" stroke-width="1.5"/>\n'
+    s += f'    <path d="M-5.5,-190 L0,-180 L5.5,-190 Z" fill="{SKIN_JAMES}" stroke-width="1.4"/>\n'
+    # the braces, over the shoulders
+    for side in (-1, 1):
+        a, b = (side * 14, -112), (side * 19, -186)
+        s += ''.join(tube([a, b], 4.4, BRACES, ow=1.5))
+        s += f'<rect x="{side * 14 - 3}" y="-121" width="6" height="5" fill="#C9A24A" stroke-width="1"/>\n'
+    # the tie, knot pulled down a notch
+    s += f'    <path d="M-3.8,-183 L3.8,-183 L2.8,-176 L-2.8,-176 Z" fill="{TIE_JAMES}"/>\n'
+    s += f'    <path d="M-2.8,-176 L2.8,-176 L6.5,-128 L0,-121 L-6.5,-128 Z" fill="{TIE_JAMES}"/>\n'
+    s += '    <path d="M-3.4,-166 L3.6,-171 M-4.4,-154 L4.4,-160 M-5.2,-142 L5.2,-148 M-5.6,-131 L5.8,-137" stroke="#D9A84A" stroke-width="1.3"/>\n'
+    s += f'    <path d="M-9,-190 L-1,-181 L-11,-178 L-14,-186 Z M9,-190 L1,-181 L11,-178 L14,-186 Z" fill="{SHIRT_JAMES}" stroke-width="1.6"/>\n'
+    return s
+
+
+def james_legs():
+    s = f'    <path d="M-25,-112 L25,-112 L23,-62 L19,-8 L3,-8 L1,-92 L-1,-92 L-3,-8 L-19,-8 L-23,-62 Z" fill="{TROUSERS_JAMES}"/>\n'
+    s += '    <path d="M-11,-104 L-11,-12 M11,-104 L11,-12" stroke="#50555F" stroke-width="1.4"/>\n'
+    s += '    <rect x="-25" y="-115" width="50" height="7" fill="#3E2618" stroke-width="2"/><rect x="-3.5" y="-115" width="7" height="7" fill="#C9A24A" stroke-width="1.4"/>\n'
+    s += '    <path d="M-20,-9 L-3,-9 L-2,0 L-25,0 C-27,-3 -25,-8 -20,-9 Z M3,-9 L20,-9 C25,-8 27,-3 25,0 L2,0 Z" fill="#1E1B1B"/>\n'
+    s += '    <path d="M-20,-6 L-12,-6 M13,-6 L21,-6" stroke="#57504C" stroke-width="1.4"/>\n'
+    return s
+
+
+SL, SR = (-28, -181), (28, -181)
+
+
+def pocket_hand(side):
+    """The hand that goes in his trouser pocket: a forearm into the pocket, the pocket's edge drawn over it."""
+    x = side
+    s = arm(SL if side < 0 else SR, (x * 36, -142), (x * 21, -108), SHIRT_JAMES, SKIN_JAMES, hand=False)
+    s += f'<path d="M{x * 28},-110 L{x * 13},-110 L{x * 12},-96 L{x * 25},-100 Z" fill="{TROUSERS_JAMES}" stroke="none"/>'
+    s += f'<path d="M{x * 24},-109 L{x * 14},-98" fill="none" stroke="{INK}" stroke-width="2"/>\n'
+    return s
+
+
+def watch(H, E):
+    """His wristwatch, on the left wrist, just short of the hand."""
+    p = lerp(H, E, 0.22)
+    return f'<circle cx="{f(p[0])}" cy="{f(p[1])}" r="3.4" fill="#D9A441" stroke="{INK}" stroke-width="1.4"/>'
+
+
+def james(stage, x=548, y=390, s=1.0, look=None, expr=None):
+    pose = {
+        'idle': ('left', 'smile'), 'tim': ('left', 'smile'), 'reading': ('down', 'stern'), 'flowchart': ('right', 'smile'),
+        'consulting': ('left', 'stern'), 'spec': ('down', 'smile'), 'done': ('left', 'talk'), 'failed': ('left', 'stern'),
+        'door': ('front', 'smile'),
+    }[stage]
+    look = look or pose[0]
+    expr = expr or pose[1]
+    out = f'  <ellipse cx="{x}" cy="{f(y + 1)}" rx="{f(34 * s)}" ry="{f(6 * s)}" fill="#1F4245"/>\n'
+    out += f'  <g class="james" transform="translate({x} {y}) scale({s})" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+    out += james_legs() + james_torso()
+    left, right = '', ''
+    if stage == 'door':
+        # in the doorway his inside hand is in his pocket, so nobody's arm crosses anybody
+        left = arm(SL, (-40, -144), (-25, -150), SHIRT_JAMES, SKIN_JAMES, hold=glass(-22, -142, 1.15))
+        right = pocket_hand(1)
+    elif stage in ('idle', 'tim'):
+        left = pocket_hand(-1)
+        H = (25, -150)
+        right = arm(SR, (40, -144), H, SHIRT_JAMES, SKIN_JAMES, hold=glass(22, -142, 1.15)) + watch(H, (40, -144))
+    elif stage == 'reading':
+        HL, HR = (-14, -150), (14, -150)
+        folder = (f'<g stroke="{INK}" stroke-width="2"><path d="M-26,-172 L0,-168 L0,-138 L-24,-142 Z" fill="{MANILA}"/>'
+                  f'<path d="M0,-168 L26,-172 L24,-142 L0,-138 Z" fill="#FBF8F0"/>'
+                  '<path d="M5,-162 L20,-164 M5,-156 L20,-158 M5,-150 L16,-151.5" stroke="#8A8A8A" stroke-width="1.2"/>'
+                  '<path d="M-20,-161 L-6,-159" stroke="#B23A2E" stroke-width="1.4"/></g>')
+        left = arm(SL, (-38, -140), HL, SHIRT_JAMES, SKIN_JAMES, hand=False)
+        right = arm(SR, (38, -140), HR, SHIRT_JAMES, SKIN_JAMES, hand=False) + folder
+        right += f'<circle cx="{HL[0]}" cy="{HL[1]}" r="6.2" fill="{SKIN_JAMES}" stroke="{INK}"/><circle cx="{HR[0]}" cy="{HR[1]}" r="6.2" fill="{SKIN_JAMES}" stroke="{INK}"/>' + watch(HR, (38, -140))
+    elif stage == 'flowchart':
+        left = pocket_hand(-1)
+        H = (88, -214)
+        marker = f'<g transform="rotate(-50 {H[0]} {H[1]})"><rect x="{H[0] - 2.5}" y="{H[1] - 15}" width="5" height="14" rx="1.5" fill="#1F4E8C" stroke="{INK}" stroke-width="1.4"/></g>'
+        right = arm(SR, (58, -190), H, SHIRT_JAMES, SKIN_JAMES, cls='scribble', hold=marker) + watch(H, (58, -190))
+    elif stage == 'consulting':
+        HL = (-6, -197)
+        left = arm(SL, (-36, -146), HL, SHIRT_JAMES, SKIN_JAMES)
+        right = arm(SR, (46, -148), (25, -118), SHIRT_JAMES, SKIN_JAMES)
+    elif stage == 'spec':
+        left = pocket_hand(-1)
+        H = (20, -152)
+        sheet = (f'<g transform="rotate(-8 18 -150)" stroke="{INK}" stroke-width="1.4"><path d="M2,-178 L34,-178 L34,-128 L2,-128 Z" fill="#FFFFFF"/>'
+                 '<path d="M6,-172 L30,-172 M6,-164 L30,-164 M6,-156 L30,-156 M6,-148 L30,-148 M6,-140 L30,-140" stroke="#BFE3BC" stroke-width="3.5"/>'
+                 '<path d="M8,-170 L26,-170 M8,-162 L22,-162 M8,-154 L28,-154" stroke="#5A5A5A" stroke-width="1"/></g>')
+        right = arm(SR, (40, -140), H, SHIRT_JAMES, SKIN_JAMES, hold=sheet) + watch(H, (40, -140))
+    elif stage == 'done':
+        left = arm(SL, (-48, -160), (-64, -178), SHIRT_JAMES, SKIN_JAMES)
+        H = (46, -236)
+        right = arm(SR, (50, -196), H, SHIRT_JAMES, SKIN_JAMES, cls='toast', hold=glass(46, -236, 1.0)) + watch(H, (50, -196))
+    elif stage == 'failed':
+        left = arm(SL, (-46, -146), (-26, -116), SHIRT_JAMES, SKIN_JAMES)
+        right = arm(SR, (46, -146), (26, -116), SHIRT_JAMES, SKIN_JAMES) + watch((26, -116), (46, -146))
+    out += left + james_head(look, expr) + right
+    return out + '  </g>\n'
+
+
+# ======================================================================================== Tim, the EA, with the memo
+def tim():
+    s = '  <g class="tim">\n'
+    s += '  <ellipse cx="96" cy="391" rx="28" ry="5.5" fill="#1F4245"/>\n'
+    s += f'  <g class="walk"><g transform="translate(96 390) scale(0.9)" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+    s += '    <path d="M-22,-104 L22,-104 L20,-56 L17,-8 L3,-8 L1,-88 L-1,-88 L-3,-8 L-17,-8 L-20,-56 Z" fill="#C8B387"/>\n'
+    s += '    <path d="M-19,-9 L-3,-9 L-2,0 L-23,0 C-25,-3 -23,-8 -19,-9 Z M3,-9 L19,-9 C23,-8 25,-3 23,0 L2,0 Z" fill="#6B4A32"/>\n'
+    s += '    <path d="M-8,-182 C-18,-181 -26,-178 -29,-172 C-31,-152 -28,-126 -23,-104 L23,-104 C28,-126 31,-152 29,-172 C26,-178 18,-181 8,-182 Z" fill="#FBF8F0"/>\n'
+    # the sweater vest
+    s += '    <path d="M-22,-170 C-25,-150 -24,-126 -21,-104 L21,-104 C24,-126 25,-150 22,-170 L10,-178 L0,-150 L-10,-178 Z" fill="#7D8B3F"/>\n'
+    s += '    <path d="M-18,-112 L18,-112" stroke="#66732F" stroke-width="2"/>\n'
+    s += '    <path d="M-2.8,-176 L2.8,-176 L4.5,-152 L0,-148 L-4.5,-152 Z" fill="#2F6F73"/>\n'
+    s += '    <path d="M-8,-182 L-1,-174 L-9,-171 L-12,-178 Z M8,-182 L1,-174 L9,-171 L12,-178 Z" fill="#FBF8F0" stroke-width="1.6"/>\n'
+    s += f'    <path d="M-5.5,-194 L-6,-180 L6,-180 L5.5,-194 Z" fill="{SKIN_TIM}"/>\n'
+    s += f'    <ellipse cx="-15" cy="-208" rx="3.2" ry="5" fill="{SKIN_TIM}"/><ellipse cx="15" cy="-208" rx="3.2" ry="5" fill="{SKIN_TIM}"/>\n'
+    s += f'    <path d="M-14.5,-218 C-15,-200 -10,-188 0,-188 C10,-188 15,-200 14.5,-218 Z" fill="{SKIN_TIM}"/>\n'
+    s += f'    <path d="M-16,-210 C-19,-226 -10,-234 1,-234 C12,-234 19,-226 16,-210 C14,-218 9,-222 3,-221 C-3,-224 -11,-220 -16,-210 Z" fill="{HAIR_TIM}"/>\n'
+    s += f'    <path d="M2,-233 C4,-240 9,-241 10,-238 C7,-238 5,-236 4,-232 Z" fill="{HAIR_TIM}" stroke-width="1.6"/>\n'
+    for ex in (-4.2, 4.2):
+        s += f'    <ellipse cx="{ex}" cy="-209" rx="4" ry="5" fill="#FFFFFF" stroke-width="1.7"/><circle cx="{f(ex + 1.5)}" cy="-208.5" r="1.6" fill="{INK}" stroke="none"/>\n'
+    s += '    <path d="M-9,-217 L-2,-217.5 M2,-217.5 L9,-216.5" fill="none" stroke-width="2.2"/>\n'
+    s += '    <path d="M1,-204 Q4.5,-199 1,-198" fill="none" stroke-width="1.5"/>\n'
+    s += '    <path d="M-6,-195 Q0,-192 7,-195.5 Q3,-188.5 0,-189 Q-4,-189.5 -6,-195 Z" fill="#5A2320" stroke-width="1.6"/><path d="M-3.5,-194 L4.5,-194.4" stroke="#FFFFFF" stroke-width="1.4"/>\n'
+    s += '    <path d="M-9,-201 L-8,-200 M-11,-202 L-10,-201 M9,-201 L10,-200" stroke="#C98A6A" stroke-width="1.2"/>\n'
+    # the memo from the owner in a manila folder, held to his chest
+    folder = (f'<g stroke="{INK}" stroke-width="2"><path d="M-28,-166 L4,-160 L2,-118 L-30,-124 Z" fill="{MANILA}"/>'
+              f'<path d="M-24,-166 L-12,-164 L-12,-160 L-24,-162 Z" fill="{MANILA_DK}" stroke-width="1.2"/>'
+              f'<path d="M-22,-148 L-4,-145" stroke="#B23A2E" stroke-width="1.6"/>'
+              f'<path d="M-6,-163 L0,-162 L-1,-170 L-7,-171 Z" fill="#FBF8F0" stroke-width="1.2"/></g>')
+    s += arm((-24, -172), (-34, -132), (-8, -138), '#FBF8F0', SKIN_TIM, hand=False) + folder
+    s += f'<circle cx="-8" cy="-138" r="6" fill="{SKIN_TIM}" stroke="{INK}" stroke-width="2.4"/>\n'
+    s += arm((24, -172), (42, -186), (48, -218), '#FBF8F0', SKIN_TIM, cls='wave')
+    s += '  </g></g>\n  </g>\n'
+    return s
+
+
+# ======================================================================================== speech
+def bubble(x, y, w, lines, tail, cls='bubble'):
+    """A cartoon balloon, lettered in caps; its tail points at (tail)."""
+    h = 12 + 14 * len(lines)
+    tx = min(max(tail[0], x + 18), x + w - 18)
+    t = ''.join(f'<text x="{f(x + w / 2)}" y="{f(y + 18 + 14 * i)}" text-anchor="middle" font-family="{TYPE}" font-size="11" font-weight="700" fill="{INK}" stroke="none">{escape(l)}</text>' for i, l in enumerate(lines))
+    return (f'  <g class="{cls}" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round">\n'
+            f'    <path d="M{x + 10},{y} L{x + w - 10},{y} Q{x + w},{y} {x + w},{y + 10} L{x + w},{y + h - 10} Q{x + w},{y + h} {x + w - 10},{y + h} '
+            f'L{f(tx + 9)},{y + h} L{f(tail[0])},{f(tail[1])} L{f(tx - 3)},{y + h} L{x + 10},{y + h} Q{x},{y + h} {x},{y + h - 10} L{x},{y + 10} Q{x},{y} {x + 10},{y} Z" fill="#FFFDF6"/>\n'
+            f'    {t}\n  </g>\n')
+
+
+# ======================================================================================== a scene
+LABELS = {
+    'idle': ('Ten to eleven at night in the CTO\'s office. John, the Chief Engineer, types at the terminal behind the '
+             'partners\' desk; James, the CTO, stands by the window with a whisky. Two cigars smoulder in the ashtray, '
+             'Chinese takeout waits on the desk, and the org chart on the wall has the two of them at the top.'),
+    'tim': 'Tim walks in with a memo in a manila folder: "Memo from Patrick. It\'s for you two." James and John look up.',
+    'reading': 'Reading the state: John reads the green screen, chin in hand; James reads the memo in the folder.',
+    'flowchart': 'James draws the run on the run board, three lanes into the gate; John watches from the desk, eating.',
+    'consulting': 'John makes his one call, pencil raised: "Smallest correct change. Then it ships." James listens, hand at his chin.',
+    'spec': 'John types out the prompts; the spec feeds off the dot-matrix printer and James reads the first sheet.',
+    'done': 'Done: the run is pinned to the board and stamped. James raises his glass: "Paste blocks are up. We move." John raises his.',
+    'failed': 'The run did not publish: the screen says ERROR, John holds his forehead: "That one didn\'t land. We go again."',
+}
 
 HEAD = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}" width="{w}" height="{h}" role="img" aria-label="{label}">
   <title>{title}</title>
 '''
 
-ROOM = '''  <rect width="640" height="400" fill="#CBD9D3"/>
-  <polygon points="20,350 320,200 320,20 20,170" fill="#DCE5E0"/>
-  <polygon points="320,200 620,350 620,170 320,20" fill="#C6D3CD"/>
-  <polygon points="320,200 620,350 320,500 20,350" fill="#EDE6DA"/>
-  <g stroke="#E0D6C6" stroke-width="2">
-    <line x1="95" y1="312" x2="395" y2="462"/><line x1="170" y1="275" x2="470" y2="425"/><line x1="245" y1="237" x2="545" y2="387"/>
-  </g>
-  <polyline points="20,170 320,20 620,170" fill="none" stroke="#9FB2AA" stroke-width="2"/>
-  <line x1="320" y1="20" x2="320" y2="200" stroke="#9FB2AA" stroke-width="2"/>
-  <ellipse cx="232" cy="190" rx="66" ry="40" fill="#F3DCC8" fill-opacity="0.3"/>
-'''
-
-WINDOW = '''    <polygon points="430,145 590,225 590,95 430,15" fill="#F3DCC8"/>
-    <polygon points="430,145 590,225 590,173 430,93" fill="#EFC3A0" stroke="none"/>
-    <line x1="510" y1="55" x2="510" y2="185" stroke="#FFFFFF" stroke-width="5"/>
-    <polygon points="430,145 590,225 590,95 430,15" fill="none"/>
-'''
-
-# The board sits on the left wall. Board-local coordinates (0..160 across, 0..80 down) map onto the wall by this matrix.
-BOARD_M = 'matrix(1 -0.5 0 1 90 165)'
-BOARD_FRAME = '    <polygon points="90,245 250,165 250,85 90,165" fill="#FAFBFA"/>\n'
-
-def board(content):
-    return BOARD_FRAME + f'    <g transform="{BOARD_M}" stroke-width="1.6">\n{content}    </g>\n'
-
-PLAN = '''      <rect x="15" y="15" width="100" height="8" fill="#2E6B66" stroke="none"/>
-      <rect x="15" y="35" width="70" height="8" fill="#7FB3AD" stroke="none"/>
-      <rect x="15" y="55" width="125" height="8" fill="#D9895B" stroke="none"/>
-'''
-
-def flowchart(draw):
-    c = ' class="draw d{}"' if draw else '{}'
-    k = (lambda i: c.format(i)) if draw else (lambda i: '')
-    return f'''      <rect{k(1)} x="10" y="9" width="34" height="15" rx="3" fill="none" stroke="#2E6B66"/>
-      <path{k(2)} d="M44,16.5 L60,16.5 M56,13.5 L60,16.5 L56,19.5" fill="none" stroke="#2E6B66"/>
-      <rect{k(3)} x="60" y="9" width="34" height="15" rx="3" fill="none" stroke="#2E6B66"/>
-      <path{k(4)} d="M94,16.5 L110,16.5 M106,13.5 L110,16.5 L106,19.5" fill="none" stroke="#2E6B66"/>
-      <rect{k(5)} x="110" y="9" width="38" height="15" rx="3" fill="none" stroke="#2E6B66"/>
-      <path{k(6)} d="M77,24 L77,36 M74,32 L77,36 L80,32" fill="none" stroke="#2E6B66"/>
-      <path{k(7)} d="M77,36 L93,48 L77,60 L61,48 Z" fill="none" stroke="#D9895B"/>
-      <path{k(8)} d="M61,48 L28,48 L28,24 M25,28 L28,24 L31,28" fill="none" stroke="#D9895B"/>
-      <path{k(9)} d="M93,48 L129,48 L129,24 M126,28 L129,24 L132,28" fill="none" stroke="#2E6B66"/>
-      <path{k(10)} d="M18,13 L36,13 M18,17 L30,17 M68,13 L86,13 M68,17 L80,17 M118,13 L140,13 M118,17 L132,17" fill="none" stroke="#7FB3AD" stroke-width="1.2"/>
-'''
-
-PINNED = '''      <rect x="112" y="30" width="38" height="44" fill="#FFFFFF" stroke="#141414" stroke-width="1.2"/>
-      <circle cx="131" cy="32" r="2.2" fill="#D9895B" stroke="#141414" stroke-width="0.8"/>
-      <path d="M117,42 L120,45 L125,39 M117,52 L120,55 L125,49 M117,62 L120,65 L125,59" fill="none" stroke="#2E6B66" stroke-width="1.5"/>
-      <path d="M129,42 L145,42 M129,52 L143,52 M129,62 L145,62" fill="none" stroke="#9FB2AA" stroke-width="1.4"/>
-'''
-
-PLANT = '''    <g>
-      <path d="M296,150 C268,146 258,124 270,112 C288,114 302,130 296,150 Z" fill="#3D6B49"/>
-      <path d="M336,146 C364,142 378,120 366,106 C346,108 330,126 336,146 Z" fill="#4F7F5A"/>
-      <path d="M316,140 C300,112 306,80 320,66 C334,82 336,112 316,140 Z" fill="#6A9A72"/>
-      <path d="M306,166 C282,170 268,158 272,146 C290,142 306,150 306,166 Z" fill="#4F7F5A"/>
-      <path d="M330,164 C352,170 368,160 366,148 C348,142 332,150 330,164 Z" fill="#3D6B49"/>
-      <path d="M296,150 C288,134 280,124 270,112 M336,146 C344,130 354,118 366,106 M316,140 C318,116 320,90 320,66" fill="none" stroke-width="1.2"/>
-    </g>
-'''
-
-SOFA = '''    <polygon points="300,280 440,350 330,405 190,335" fill="#CFDCD5" stroke="none"/>
-    <polygon points="330,156 510,246 490,256 310,166" fill="#4F8A84"/>
-    <polygon points="310,166 490,256 490,306 310,216" fill="#2E6B66"/>
-    <polygon points="490,256 510,246 510,296 490,306" fill="#1F4744"/>
-    <polygon points="310,216 490,306 440,331 260,241" fill="#4F8A84"/>
-    <polygon points="260,241 440,331 440,365 260,275" fill="#2E6B66"/>
-    <polygon points="330,186 350,196 280,231 260,221" fill="#5C968F"/>
-    <polygon points="260,221 280,231 280,285 260,275" fill="#2E6B66"/>
-    <polygon points="280,231 350,196 350,250 280,285" fill="#1F4744"/>
-    <polygon points="490,266 510,276 440,311 420,301" fill="#5C968F"/>
-    <polygon points="420,301 440,311 440,365 420,355" fill="#2E6B66"/>
-    <polygon points="440,311 510,276 510,330 440,365" fill="#1F4744"/>
-    <polygon points="262,276 268,279 266,289 262,287" fill="#7A5A3C"/>
-    <polygon points="436,364 442,367 440,377 436,375" fill="#7A5A3C"/>
-'''
-
-TABLE = '''    <polygon points="260,298 360,348 320,368 220,318" fill="#D9B98F"/>
-    <polygon points="220,318 320,368 320,390 220,340" fill="#B8936A"/>
-    <polygon points="320,368 360,348 360,370 320,390" fill="#9A774F"/>
-'''
-
-def pail(x, y, s=1.0, open_=False, sticks=False):
-    """A takeout pail, its base centred at (x, y): white folded box, red mark, wire handle."""
-    g = f'<g transform="translate({x} {y}) scale({s})">'
-    g += '<path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="#FBFAF6"/>'
-    g += '<path d="M3,-17 L9,-17 L6,0 L2,0 Z" fill="#E4E0D6" stroke="none"/>'
-    g += '<path d="M-9,-17 L9,-17 L6,0 L-6,0 Z" fill="none"/>'
-    if open_:
-        g += '<path d="M-9,-17 L-12,-23 L-2,-20 Z M9,-17 L12,-23 L2,-20 Z" fill="#FBFAF6" stroke-width="1.4"/>'
-        g += '<path d="M-8,-17 Q0,-21 8,-17" fill="#C9A26B" stroke-width="1.2"/>'
-    else:
-        g += '<path d="M-9,-17 L0,-24 L9,-17 Z" fill="#FBFAF6" stroke-width="1.4"/>'
-        g += '<path d="M-7,-20 Q0,-31 7,-20" fill="none" stroke="#6E737B" stroke-width="1.2"/>'
-    g += '<path d="M-3,-11 L0,-14 L3,-11 M-2,-11 L-2,-6 L2,-6 L2,-11" fill="none" stroke="#B23A2E" stroke-width="1.1"/>'
-    if sticks:
-        g += '<path d="M1,-18 L9,-36 M4,-18 L13,-34" fill="none" stroke="#B8936A" stroke-width="1.8"/>'
-    return g + '</g>\n'
-
-def takeout(stage):
-    """On the coffee table: dinner. Closed boxes waiting while they start; open ones with chopsticks once they dig in."""
-    eating = stage not in ('idle', 'tim')
-    s = '    <g class="dinner">\n'
-    s += '      ' + pail(306, 345, 0.95, open_=eating, sticks=eating)
-    s += '      ' + pail(330, 356, 1.05, open_=eating and stage != 'flowchart')
-    s += '      <path d="M282,340 L300,349 L296,351 L278,342 Z" fill="#F7F7F5" stroke-width="1.2"/>\n'
-    s += '      <path d="M344,341 Q350,336 356,341 Q350,344 344,341 Z" fill="#E6C27A" stroke-width="1.2"/>\n'
-    if stage == 'done':
-        s += '      <path d="M268,330 L276,334 L274,336 L266,332 Z" fill="#E6C27A" stroke-width="1"/>\n'
-    return s + '    </g>\n'
-
-LAMP = '''  <g stroke="#141414" stroke-width="2" stroke-linejoin="round">
-    <ellipse cx="232" cy="263" rx="10" ry="4" fill="#2B2F33"/>
-    <rect x="230.5" y="184" width="3" height="79" fill="#2B2F33" stroke-width="1"/>
-    <circle cx="232" cy="166" r="20" fill="#FBF3E8"/>
-    <path d="M214,174 A20,20 0 0 0 250,174 C244,180 220,180 214,174 Z" fill="#F1E2CF" stroke="none"/>
-    <path d="M213,166 C220,170 244,170 251,166" fill="none" stroke-width="1.2"/>
-  </g>
-'''
-
-# ---------------------------------------------------------------- John, on the sofa (global coordinates)
-JOHN_BODY = '''    <path d="M330,210 C328,228 330,246 334,260 L368,260 C372,246 376,228 376,210 C366,202 340,202 330,210 Z" fill="#3B4A4A"/>
-    <path d="M361,205 C372,207 377,215 376,226 C375,240 371,252 368,260 L359,260 C363,243 365,222 361,205 Z" fill="#263131" stroke="none"/>
-    <path d="M330,210 C328,228 330,246 334,260 L368,260 C372,246 376,228 376,210 C366,202 340,202 330,210 Z" fill="none"/>
-    <path d="M344,205 L352,215 L360,205" fill="none" stroke-width="1.6"/>
-    <path d="M347,197 L358,197 L359,207 L346,207 Z" fill="#9C6B4E"/>
-'''
-
-def john_head(look):
-    """look: down (at his lap), up (at whoever is talking), left (toward James or Tim)."""
-    s = '''    <path d="M338,180 C337,165 368,163 368,180 L367,190 C366,200 360,205 353,205 C346,205 339,200 338,190 Z" fill="#9C6B4E"/>
-    <path d="M360,168 C367,171 368,178 368,184 L367,192 C365,199 362,202 358,204 C362,194 363,180 360,168 Z" fill="#7E5338" stroke="none"/>
-    <path d="M338,186 C338,200 345,207 353,207 C361,207 368,200 368,186 C366,192 362,195 360,195 L346,195 C343,195 340,192 338,186 Z" fill="#231C18"/>
-    <path d="M346,192 Q353,188.5 360,192 Q353,194.5 346,192 Z" fill="#231C18" stroke-width="1"/>
-    <path d="M338,181 C336,164 368,160 368,180 C364,172 354,170 346,172 C342,174 340,177 338,181 Z" fill="#1A1614"/>
-    <path d="M353,183 L351,189 L355,189.5" fill="none" stroke-width="1.2"/>
-'''
-    if look == 'down':
-        s += '''    <path d="M343,177.5 L350,176.5 M356,176.5 L363,177.5" fill="none" stroke-width="2.4"/>
-    <path d="M343.5,181.5 L350.5,181.5 M355.5,181.5 L362.5,181.5" fill="none" stroke-width="1.8"/>
-    <circle cx="347.5" cy="183.6" r="1.5" fill="#141414" stroke="none"/><circle cx="359" cy="183.6" r="1.5" fill="#141414" stroke="none"/>
-    <path d="M351,199.8 Q354,200.6 357,199.4" fill="none" stroke="#E9D9CB" stroke-width="1.3"/>
-'''
-    else:
-        dx = -1.6 if look == 'left' else 0
-        s += f'''    <path d="M343,176 L350,175.5 M356,175.5 L363,176" fill="none" stroke-width="2.4"/>
-    <ellipse cx="{347 + dx}" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/><ellipse cx="{359 + dx}" cy="181" rx="1.6" ry="2" fill="#141414" stroke="none"/>
-    <path d="M349,199.5 Q353.5,202 358,199" fill="none" stroke="#E9D9CB" stroke-width="1.5"/>
-'''
-    return s
-
-JOHN_LEGS_TOP = '''    <path d="M336,256 C326,262 312,266 302,270 L306,286 C318,282 330,280 344,276 L370,262 L368,256 Z" fill="#A5A992"/>
-    <path d="M306,286 C318,282 330,280 344,276 L370,262 L370,268 L346,282 C332,286 318,288 308,292 Z" fill="#868A74"/>
-'''
-JOHN_LEGS_DOWN = '''    <path d="M302,270 C292,282 282,298 272,312 L282,318 C292,304 300,290 308,282 Z" fill="#A5A992"/>
-    <path d="M308,282 C300,296 292,308 286,320 L296,324 C302,312 310,298 316,288 Z" fill="#868A74"/>
-    <path d="M262,312 C257,316 261,323 270,321 L284,318 L280,310 Z" fill="#2A2A2E"/>
-    <path d="M278,322 C273,326 277,333 286,331 L300,328 L296,320 Z" fill="#2A2A2E"/>
-'''
-JOHN_ARM_BACK = '''    <path d="M374,212 C386,206 398,204 410,206 L410,213 C398,212 386,214 376,220 Z" fill="#263131"/>
-    <path d="M408,206 C414,204 420,204 426,205 L426,211 C420,211 414,212 408,213 Z" fill="#9C6B4E"/>
-    <ellipse cx="430" cy="208" rx="5" ry="4" fill="#9C6B4E"/>
-'''
-JOHN_ARM_POINT = '''    <g class="nod">
-    <path d="M372,214 C382,206 388,196 390,184 L397,186 C395,200 388,212 377,222 Z" fill="#263131"/>
-    <path d="M390,186 C391,180 392,174 393,168 L399,170 C398,176 397,182 396,188 Z" fill="#9C6B4E"/>
-    <path d="M393,169 C392,163 393,158 395,155 L398,156 C398,160 398,164 399,169 Z" fill="#9C6B4E"/>
-    <ellipse cx="396" cy="170" rx="5" ry="4.5" fill="#9C6B4E"/>
-    </g>
-'''
-TABLET = '''    <path d="M300,258 L330,268 L322,280 L292,270 Z" fill="#1E2A2A"/>
-    <path d="M302,261 L326,269 L320,277.5 L296,269.5 Z" fill="#7FB3AD" stroke="none"/>
-    <path d="M304,264 L313,267 M301,268 L315,272.5 M306,271.5 L318,275.5" fill="none" stroke-width="1.4" stroke="#2E6B66"/>
-    <path d="M302,267.2 L309,269.5" fill="none" stroke-width="1.4" stroke="#D9895B"/>
-'''
-SPEC_SHEET = '''    <path d="M296,254 L332,266 L322,284 L286,272 Z" fill="#7A5A3C"/>
-    <path d="M299,256 L329,266.5 L321,281 L291,270.5 Z" fill="#FFFFFF" stroke-width="1.2"/>
-    <path d="M302,259 L326,267 M299,263 L323,271 M296,267 L320,275 M305,258 L297,272 M313,261 L305,275 M321,264 L313,278" fill="none" stroke="#C6D3CD" stroke-width="0.8"/>
-    <path class="draw d1" d="M300,263 L309,266 L306,271 L297,268 Z" fill="none" stroke="#2E6B66" stroke-width="1.3"/>
-    <path class="draw d3" d="M312,268 L320,270.5" fill="none" stroke="#D9895B" stroke-width="1.3"/>
-'''
-JOHN_HAND_LAP = '''    <path d="M330,212 C324,226 322,240 326,250 L334,248 C333,238 334,226 338,214 Z" fill="#3B4A4A"/>
-    <path d="M324,248 C320,254 316,258 311,262 L317,268 C322,264 328,258 334,250 Z" fill="#9C6B4E"/>
-    <ellipse cx="312" cy="266" rx="5.5" ry="4" fill="#9C6B4E"/>
-'''
-JOHN_PENCIL = '''    <g class="scribble">
-    <path d="M330,212 C324,226 322,240 326,250 L334,248 C333,238 334,226 338,214 Z" fill="#3B4A4A"/>
-    <path d="M324,248 C320,254 316,260 312,264 L318,270 C322,265 328,258 334,250 Z" fill="#9C6B4E"/>
-    <ellipse cx="313" cy="268" rx="5.5" ry="4" fill="#9C6B4E"/>
-    <path d="M306,272 L318,258 L321,260 L309,274 Z" fill="#E6C27A" stroke-width="1.2"/>
-    <path d="M306,272 L309,274 L305,276 Z" fill="#141414" stroke-width="0.8"/>
-    </g>
-'''
-JOHN_CHOPSTICKS = '''    <path d="M330,212 C324,226 322,240 326,250 L334,248 C333,238 334,226 338,214 Z" fill="#3B4A4A"/>
-    <path d="M326,248 C326,240 330,232 334,226 L340,230 C336,236 333,242 332,250 Z" fill="#9C6B4E"/>
-    <ellipse cx="337" cy="226" rx="5" ry="4" fill="#9C6B4E"/>
-    <path d="M336,224 L348,200 M339,226 L352,203" fill="none" stroke="#B8936A" stroke-width="1.8"/>
-    <path d="M300,268 L316,273 L313,279 L297,274 Z" fill="#FBFAF6" stroke-width="1.4"/>
-    <path d="M300,268 Q308,264 316,273" fill="#C9A26B" stroke-width="1.2"/>
-'''
-
-def john(stage):
-    look = {'idle': 'down', 'reading': 'down', 'spec': 'down', 'tim': 'left', 'flowchart': 'left',
-            'consulting': 'left', 'done': 'left', 'failed': 'down'}[stage]
-    s = '  <g class="john" stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">\n'
-    s += JOHN_ARM_POINT if stage in ('consulting', 'done') else JOHN_ARM_BACK
-    s += JOHN_BODY + john_head(look) + JOHN_LEGS_TOP
-    if stage == 'spec':
-        s += SPEC_SHEET + JOHN_PENCIL
-    elif stage == 'flowchart':
-        s += JOHN_CHOPSTICKS
-    else:
-        s += TABLET + JOHN_HAND_LAP
-    return s + '  </g>\n'
-
-# ---------------------------------------------------------------- James, standing (local coordinates: feet at 0,0)
-JAMES_BODY = '''    <path d="M-16,-95 C-18,-60 -15,-30 -14,-6 L-3,-6 C-2,-35 -1,-65 0,-92 Z" fill="#C9CED3"/>
-    <path d="M0,-92 C2,-65 4,-35 6,-6 L17,-6 C16,-35 16,-65 14,-95 Z" fill="#A9B1B9"/>
-    <path d="M-17,-7 C-22,-6 -27,-1 -22,1 L-2,1 L-2,-7 Z" fill="#2A2A2E"/>
-    <path d="M5,-7 L5,1 L24,1 C28,-1 24,-6 18,-7 Z" fill="#2A2A2E"/>
-    <path d="M-24,-158 C-30,-140 -26,-110 -20,-86 L20,-86 C24,-110 26,-140 22,-158 C12,-164 -14,-164 -24,-158 Z" fill="#D5D9DD"/>
-    <path d="M10,-162 C21,-158 26,-140 22,-120 C21,-108 21,-96 20,-86 L9,-86 C12,-110 13,-140 10,-162 Z" fill="#A9B1B9" stroke="none"/>
-    <path d="M-24,-158 C-30,-140 -26,-110 -20,-86 L20,-86 C24,-110 26,-140 22,-158 C12,-164 -14,-164 -24,-158 Z" fill="none"/>
-    <path d="M-7,-161 L0,-136 L7,-161 Z" fill="#F7F7F5"/>
-    <path d="M-7,-161 L-2,-118 M7,-161 L2,-118" fill="none" stroke-width="1.6"/>
-    <circle cx="0" cy="-110" r="1.6" fill="#141414" stroke="none"/>
-'''
-JAMES_ARM_OPEN = '''    <g transform="rotate({a} -22 -148)"><g{cls}>
-    <path d="M-22,-156 C-34,-153 -46,-146 -58,-150 L-60,-141 C-48,-137 -36,-141 -22,-140 Z" fill="#D5D9DD"/>
-    <path d="M-60,-153 C-68,-158 -74,-156 -72,-150 C-74,-146 -68,-140 -60,-141 Z" fill="#D6A07C"/>
-    {extra}
-    </g></g>
-'''
-MARKER = '<path d="M-72,-152 L-82,-157 L-80,-161 L-70,-156 Z" fill="#2E6B66" stroke-width="1.4"/>'
-SHEET_PIN = '<path d="M-86,-170 L-66,-170 L-66,-146 L-86,-146 Z" fill="#FFFFFF" stroke-width="1.4"/>'
-JAMES_ARM_MUG = '''    <path d="M18,-158 C26,-150 29,-136 27,-123 C21,-121 13,-123 6,-125 L6,-132 C12,-131 17,-131 20,-133 C20,-142 18,-150 13,-156 Z" fill="#A9B1B9"/>
-    <path d="M-2,-146 L10,-146 L10,-130 C10,-127 -2,-127 -2,-130 Z" fill="#D9895B"/>
-    <path d="M10,-142 C15,-142 15,-134 10,-134" fill="none" stroke-width="1.8"/>
-    <ellipse cx="4" cy="-146" rx="6" ry="2" fill="#E8A77E" stroke-width="1.4"/>
-    <path d="M2,-134 C6,-136 10,-133 8,-129 C6,-127 2,-128 2,-131 Z" fill="#D6A07C" stroke-width="1.6"/>
-'''
-JAMES_ARM_TAKEOUT = '''    <path d="M18,-158 C26,-150 29,-136 27,-123 C21,-121 13,-123 6,-125 L6,-132 C12,-131 17,-131 20,-133 C20,-142 18,-150 13,-156 Z" fill="#A9B1B9"/>
-    ''' + pail(4, -126, 0.9, open_=True, sticks=True).strip() + '''
-    <path d="M2,-134 C6,-136 10,-133 8,-129 C6,-127 2,-128 2,-131 Z" fill="#D6A07C" stroke-width="1.6"/>
-'''
-
-def james_head(look):
-    s = '''    <path d="M-5,-171 L5,-171 L6,-158 L-6,-158 Z" fill="#D6A07C"/>
-    <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="#D6A07C"/>
-    <path d="M5,-201 C12,-199 13,-191 12,-181 C10,-174 6,-171 3,-170 C7,-179 8,-191 5,-201 Z" fill="#B57F5C" stroke="none"/>
-    <path d="M-12,-196 C-13,-211 12,-213 13,-196 L12,-181 C10,-173 4,-169 0,-169 C-5,-169 -11,-174 -12,-181 Z" fill="none"/>
-    <path d="M-13,-194 C-16,-214 6,-221 14,-206 C15,-201 14,-197 13,-193 C10,-202 2,-206 -5,-204 C-9,-201 -11,-198 -13,-194 Z" fill="#2E2724"/>
-    <path d="M-10,-197 Q-5.5,-199.5 -1,-197 M2,-197 Q6.5,-199.5 11,-197" fill="none" stroke-width="1.8"/>
-'''
-    dx = {'left': -1.4, 'right': 1.4, 'front': 0}[look]
-    s += f'''    <circle cx="{-5 + dx}" cy="-190" r="1.4" fill="#141414" stroke="none"/>
-    <circle cx="{6 + dx}" cy="-190" r="1.4" fill="#141414" stroke="none"/>
-    <circle cx="-5" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
-    <circle cx="6" cy="-190" r="4.6" fill="#FFFFFF" fill-opacity="0.2" stroke-width="1.5"/>
-    <path d="M-0.4,-190.5 L1.4,-190.5" fill="none" stroke-width="1.5"/>
-    <path d="M1,-187 L-1,-182 L2,-181.5" fill="none" stroke-width="1.3"/>
-    <path d="M-4,-177 Q1,-173 6,-177" fill="none" stroke-width="1.7"/>
-'''
-    return s
-
-def james(stage, x=168, y=338):
-    look = {'tim': 'left', 'consulting': 'right', 'spec': 'right', 'done': 'right', 'failed': 'right'}.get(stage, 'front')
-    s = f'  <ellipse cx="{x}" cy="{y}" rx="28" ry="8" fill="#D5CBBB"/>\n'
-    s += f'  <g class="james" transform="translate({x} {y}) scale(0.86)" stroke="#141414" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">\n'
-    s += JAMES_BODY
-    if stage == 'flowchart':
-        s += JAMES_ARM_OPEN.format(a=34, cls=' class="scribble"', extra=MARKER)
-    elif stage == 'done':
-        s += JAMES_ARM_OPEN.format(a=40, cls='', extra=SHEET_PIN)
-    elif stage == 'tim':
-        s += JAMES_ARM_OPEN.format(a=-6, cls=' class="wave"', extra='')
-    else:
-        s += JAMES_ARM_OPEN.format(a=0, cls='', extra='')
-    s += JAMES_ARM_TAKEOUT if stage in ('reading', 'spec', 'consulting') else JAMES_ARM_MUG
-    s += james_head(look)
-    return s + '  </g>\n'
-
-# ---------------------------------------------------------------- Tim, walking in with the direction (feet at 0,0)
-def tim():
-    return '''  <g class="tim">
-  <ellipse cx="66" cy="368" rx="22" ry="7" fill="#D5CBBB"/>
-  <g transform="translate(66 368) scale(0.8)" stroke="#141414" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M-15,-90 C-17,-58 -16,-30 -16,-6 L-5,-6 C-4,-34 -2,-60 0,-88 Z" fill="#4E5A73"/>
-    <path d="M0,-88 C3,-62 8,-34 12,-6 L23,-7 C19,-34 15,-62 13,-90 Z" fill="#3B455A"/>
-    <path d="M-19,-7 C-24,-6 -28,-1 -23,1 L-4,1 L-4,-7 Z" fill="#6B4A32"/>
-    <path d="M10,-7 L10,1 L29,1 C33,-1 29,-6 23,-7 Z" fill="#6B4A32"/>
-    <path d="M-23,-150 C-30,-130 -27,-104 -22,-82 L22,-82 C27,-104 30,-130 23,-150 C12,-157 -12,-157 -23,-150 Z" fill="#E7D8B9"/>
-    <path d="M9,-155 C22,-150 28,-128 24,-104 C23,-96 22,-89 22,-82 L10,-82 C13,-106 14,-134 9,-155 Z" fill="#CDBB96" stroke="none"/>
-    <path d="M-23,-150 C-30,-130 -27,-104 -22,-82 L22,-82 C27,-104 30,-130 23,-150 C12,-157 -12,-157 -23,-150 Z" fill="none"/>
-    <path d="M-8,-154 L0,-128 L8,-154 Z" fill="#9CC1E0"/>
-    <path d="M-8,-154 L-3,-100 M8,-154 L3,-100" fill="none" stroke-width="1.6"/>
-    <path d="M-3,-128 L-6,-112 L-1,-112 Z" fill="#2E6B66" stroke-width="1.2"/>
-    <rect x="-17" y="-122" width="9" height="12" rx="1.5" fill="#FFFFFF" stroke-width="1.2"/>
-    <path d="M-13,-122 L-9,-140" fill="none" stroke="#2E6B66" stroke-width="1.2"/>
-    <path d="M20,-148 C30,-140 34,-124 30,-110 C24,-108 18,-110 12,-112 L12,-120 C18,-119 22,-119 24,-121 C24,-132 22,-140 16,-146 Z" fill="#CDBB96"/>
-    <path d="M2,-132 L22,-124 L16,-108 L-4,-116 Z" fill="#1E2A2A"/>
-    <path d="M4,-129 L20,-122.5 L15,-111 L-1,-117.5 Z" fill="#F3DCC8" stroke="none"/>
-    <path d="M10,-118 C14,-121 18,-118 16,-114 C14,-111 10,-112 10,-115 Z" fill="#E2B48F" stroke-width="1.6"/>
-    <path d="M-22,-148 C-32,-140 -38,-126 -36,-112 L-28,-110 C-29,-122 -26,-134 -18,-142 Z" fill="#E7D8B9"/>
-    <path d="M-36,-112 C-38,-106 -36,-102 -32,-102 C-28,-102 -27,-106 -28,-110 Z" fill="#E2B48F" stroke-width="1.6"/>
-    <path d="M-5,-163 L5,-163 L6,-150 L-6,-150 Z" fill="#E2B48F"/>
-    <path d="M-13,-186 C-14,-201 13,-203 14,-186 L13,-174 C11,-166 5,-162 0,-162 C-6,-162 -12,-167 -13,-174 Z" fill="#E2B48F"/>
-    <path d="M6,-191 C13,-188 14,-181 13,-174 C11,-168 7,-164 3,-163 C8,-171 9,-182 6,-191 Z" fill="#C99572" stroke="none"/>
-    <path d="M-13,-186 C-14,-201 13,-203 14,-186 L13,-174 C11,-166 5,-162 0,-162 C-6,-162 -12,-167 -13,-174 Z" fill="none"/>
-    <path d="M-15,-184 C-20,-192 -16,-204 -8,-206 C-6,-212 6,-213 9,-207 C17,-207 20,-196 16,-186 C14,-193 10,-197 4,-197 C-2,-197 -10,-194 -15,-184 Z" fill="#6B3E26"/>
-    <path d="M-9,-188 Q-5,-191 -1,-188 M3,-188 Q7,-191 11,-188" fill="none" stroke-width="1.7"/>
-    <ellipse cx="-5" cy="-183" rx="1.5" ry="1.9" fill="#141414" stroke="none"/>
-    <ellipse cx="7" cy="-183" rx="1.5" ry="1.9" fill="#141414" stroke="none"/>
-    <path d="M1,-181 L-1,-176 L2,-175.5" fill="none" stroke-width="1.3"/>
-    <path d="M-6,-171 Q1,-164 8,-171 Q1,-168 -6,-171 Z" fill="#FFFFFF" stroke-width="1.5"/>
-  </g>
-  </g>
-'''
-
-def bubble(x, y, w, lines, tail_x, cls='bubble'):
-    h = 10 + 13 * len(lines)
-    t = ''.join(f'<text x="{x + w / 2}" y="{y + 16 + 13 * i}" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="600" fill="#1E2A2A" stroke="none">{escape(l)}</text>' for i, l in enumerate(lines))
-    return (f'  <g class="{cls}" stroke="#141414" stroke-width="2" stroke-linejoin="round">\n'
-            f'    <path d="M{x + 8},{y} L{x + w - 8},{y} Q{x + w},{y} {x + w},{y + 8} L{x + w},{y + h - 8} Q{x + w},{y + h} {x + w - 8},{y + h} '
-            f'L{tail_x + 8},{y + h} L{tail_x},{y + h + 10} L{tail_x - 2},{y + h} L{x + 8},{y + h} Q{x},{y + h} {x},{y + h - 8} L{x},{y + 8} Q{x},{y} {x + 8},{y} Z" fill="#FFFFFF"/>\n'
-            f'    {t}\n  </g>\n')
 
 def scene(stage):
     out = HEAD.format(vb='0 0 640 400', w=640, h=400, label=escape(LABELS[stage], quote=True), title="James and John's Coworking Space")
     out += f'  <!-- Scene "{stage}". Drawn by art/build.py; edit that, not this file. -->\n'
-    out += ROOM
-    out += '  <g stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">\n'
-    out += WINDOW
-    if stage in ('idle', 'tim', 'reading'):
-        out += board(PLAN)
-    elif stage == 'flowchart':
-        out += board(flowchart(True))
-    elif stage == 'done':
-        out += board(flowchart(False) + PINNED)
-    else:
-        out += board(flowchart(False))
-    out += PLANT + SOFA + '  </g>\n'
-    out += john(stage)  # his thighs on the sofa; his shins go over the table, below
-    out += '  <g stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">\n' + TABLE + takeout(stage)
-    out += '  </g>\n'
-    out += '  <g stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">\n' + JOHN_LEGS_DOWN + '  </g>\n'
-    out += LAMP
-    out += james(stage)
+    out += wall() + window() + board(stage) + org_chart() + clock() + credenza()
+    if stage == 'flowchart':
+        out += james('flowchart', x=98, y=286, s=0.82)
+    john_look, john_expr = {
+        'idle': ('left', 'smile'), 'tim': ('left', 'smile'), 'reading': ('left', 'smile'), 'flowchart': ('left', 'smile'),
+        'consulting': ('right', 'talk'), 'spec': ('left', 'smile'), 'done': ('right', 'talk'), 'failed': ('down', 'frown'),
+    }[stage]
+    out += john_chair() + john_body(john_look, john_expr)
+    out += desk_top() + terminal(stage) + printer(stage) + keyboard()
+    out += desk_items(stage, james_glass_on_desk=stage not in ('idle', 'tim', 'done'))
+    out += john_arms(stage)
+    out += desk_front()
+    if stage == 'spec':
+        out += printout()
     if stage == 'tim':
         out += tim()
-        out += bubble(8, 146, 128, ['Hey James! Hey John!', 'New one from Patrick.'], 66)
-    if stage == 'consulting':
-        out += bubble(396, 112, 132, ['Smallest correct change.', 'Then it ships.'], 404)
-    if stage == 'failed':
-        out += bubble(396, 120, 120, ["That one didn't land.", "We'll try again."], 404)
-    if stage == 'done':
-        out += bubble(28, 168, 108, ['Paste blocks are up.', 'We move.'], 140)
+    if stage != 'flowchart':
+        out += james(stage)
+    if stage == 'tim':
+        out += bubble(24, 118, 176, ['MEMO FROM PATRICK.', "IT'S FOR YOU TWO."], (88, 180))
+    elif stage == 'consulting':
+        out += bubble(214, 150, 186, ['SMALLEST CORRECT CHANGE.', 'THEN IT SHIPS.'], (318, 196))
+    elif stage == 'failed':
+        out += bubble(214, 150, 176, ["THAT ONE DIDN'T LAND.", 'WE GO AGAIN.'], (318, 196))
+    elif stage == 'done':
+        out += bubble(420, 96, 172, ['PASTE BLOCKS ARE UP.', 'WE MOVE.'], (540, 146))
     return out + '</svg>\n'
 
-LABELS = {
-    'idle': 'James stands easy by the run board with a coffee; John is on the sofa reading a diff. Dinner waits on the coffee table in takeout boxes.',
-    'tim': 'Tim walks in with a new direction on his tablet: "Hey James! Hey John! New one from Patrick." They both look up.',
-    'reading': 'Reading the state: John reads on his tablet while James eats takeout by the board.',
-    'flowchart': 'James draws the run as a flowchart on the board while John watches and eats.',
-    'consulting': 'John makes his one call: "Smallest correct change. Then it ships." James listens, takeout in hand.',
-    'spec': 'John draws a spec sheet on a clipboard on his knee while James eats and watches.',
-    'done': 'Done: James pins the paste blocks to the board ("Paste blocks are up. We move.") and John points to it.',
-    'failed': 'The run did not publish: John says "That one didn\'t land. We\'ll try again." while James looks over.',
-}
 
-# ---------------------------------------------------------------- avatars: two colleagues, side by side, never overlapping
+# ======================================================================================== the door figure and the avatars
+def john_standing(x, y, look='front', expr='smile'):
+    """John on his feet (for the door): his seated drawing, plus a belt and his trousers. (x, y) is his middle."""
+    s = f'  <g class="john" transform="translate({x} {y})" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+    s += '    <path d="M-35,6 L35,6 L34,70 L2,70 L0,30 L-2,70 L-34,70 Z" fill="#5A4636"/>\n'
+    s += john_torso()
+    s += '    <rect x="-35" y="2" width="70" height="7" fill="#2E1E14" stroke-width="2"/><rect x="-3.5" y="2" width="7" height="7" fill="#C9A24A" stroke-width="1.4"/>\n'
+    s += john_head(look, expr)
+    roll = (f'<g stroke="{INK}" stroke-width="1.6"><path d="M2,-24 L30,-14 L26,-4 L-2,-14 Z" fill="#FFFFFF"/>'
+            '<path d="M4,-20 L26,-12 M2,-16 L24,-8" stroke="#BFE3BC" stroke-width="2.6"/></g>')
+    s += arm(SJL, (-37, -8), (-34, 22), SHIRT_JOHN, SKIN_JOHN)
+    s += arm(SJR, (44, -10), (16, -14), SHIRT_JOHN, SKIN_JOHN, hold=roll)
+    return s + '  </g>\n'
+
+
+def door():
+    """The two of them in the doorway, colleagues side by side: the CTO with his whisky, the Chief Engineer with the spec."""
+    out = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="-94 -258 196 170" width="196" height="170" role="img" aria-label="James, the CTO, and John, the Chief Engineer, side by side in shirtsleeves and ties">
+  <title>James and John</title>
+  <!-- Drawn by art/build.py; edit that, not this file. -->
+'''
+    body = james('door', x=-38, y=0, s=1.0)
+    body = body.split('\n', 1)[1]  # no floor shadow in the doorway
+    out += john_standing(46, -134)
+    out += body
+    return out + '</svg>\n'
+
+
 def avatar_svg(label, body, clip):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="{label}">
   <title>{label}</title>
-  <!-- Drawn by art/build.py from the scenes' own shapes. Two colleagues side by side, each in their own half. -->
+  <!-- Drawn by art/build.py from the scenes' own parts. Two colleagues side by side, each in their own half. -->
   <defs><clipPath id="{clip}"><rect width="64" height="64" rx="14"/></clipPath></defs>
-  <rect width="64" height="64" rx="14" fill="#CBD9D3"/>
+  <rect width="64" height="64" rx="14" fill="#D9A441"/>
   <g clip-path="url(#{clip})">
 {body}  </g>
-  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="none" stroke="#141414" stroke-width="1.5"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="{INK}" stroke-width="2"/>
 </svg>
 '''
 
+
 def james_bust(t):
-    return (f'  <g transform="{t}" stroke="#141414" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">\n'
-            '    <path d="M-30,-162 C-34,-140 -32,-120 -30,-100 L26,-100 C28,-120 30,-140 26,-162 C14,-168 -18,-168 -30,-162 Z" fill="#D5D9DD"/>\n'
-            '    <path d="M10,-166 C24,-162 30,-140 26,-100 L10,-100 C13,-126 14,-146 10,-166 Z" fill="#A9B1B9" stroke="none"/>\n'
-            '    <path d="M-30,-162 C-34,-140 -32,-120 -30,-100 L26,-100 C28,-120 30,-140 26,-162 C14,-168 -18,-168 -30,-162 Z" fill="none"/>\n'
-            '    <path d="M-7,-164 L0,-138 L7,-164 Z" fill="#F7F7F5"/>\n'
-            + james_head('front') + '  </g>\n')
+    return (f'  <g transform="{t}" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+            + james_torso() + james_head('front', 'smile') + '  </g>\n')
+
 
 def john_bust(t):
-    return (f'  <g transform="{t}" stroke="#141414" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">\n'
-            '    <path d="M326,212 C322,232 324,250 326,262 L380,262 C382,250 384,232 380,212 C368,202 338,202 326,212 Z" fill="#3B4A4A"/>\n'
-            '    <path d="M361,205 C376,208 382,216 380,232 C379,246 380,254 380,262 L362,262 C365,243 366,222 361,205 Z" fill="#263131" stroke="none"/>\n'
-            '    <path d="M326,212 C322,232 324,250 326,262 L380,262 C382,250 384,232 380,212 C368,202 338,202 326,212 Z" fill="none"/>\n'
-            '    <path d="M344,205 L352,215 L360,205" fill="none" stroke-width="1.6"/>\n'
-            '    <path d="M347,197 L358,197 L359,207 L346,207 Z" fill="#9C6B4E"/>\n'
-            + john_head('up') + '  </g>\n')
+    return (f'  <g transform="{t}" stroke="{INK}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">\n'
+            + john_torso() + john_head('front', 'smile') + '  </g>\n')
+
 
 def write(rel, text):
     path = os.path.join(HOME, *rel.split('/'))
-    with open(path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write(text)
+    with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+        fh.write(text)
+
 
 if __name__ == '__main__':
     for st in LABELS:
         write(f'art/{st}.svg', scene(st))
     write('art.svg', scene('idle'))
-    pair = (james_bust('translate(16 121) scale(0.5)')
-            + john_bust('translate(-157 -81) scale(0.58)')
-            + '  <path d="M32,6 L32,64" stroke="#141414" stroke-width="1.5"/>\n')
+    write('art/door.svg', door())
+    pair = (james_bust('translate(17 162) scale(0.62)')
+            + john_bust('translate(48 77) scale(0.6)')
+            + f'  <path d="M32,0 L32,64" stroke="{INK}" stroke-width="1.6"/>\n')
     write('mark.svg', avatar_svg("James and John's Coworking Space", pair, 'cw-mark'))
-    write('art/james.svg', avatar_svg('James, CTO', james_bust('translate(32 145) scale(0.62)'), 'cw-james'))
-    write('art/john.svg', avatar_svg('John, Chief Engineer', john_bust('translate(-207 -101) scale(0.68)'), 'cw-john'))
-    print('drew', len(LABELS), 'scenes, the mark and two avatars')
+    write('art/james.svg', avatar_svg('James, CTO', james_bust('translate(32 202) scale(0.78)'), 'cw-james'))
+    write('art/john.svg', avatar_svg('John, Chief Engineer', john_bust('translate(32 96) scale(0.74)'), 'cw-john'))
+    print('drew', len(LABELS), 'scenes, the door figure, the mark and two avatars')
