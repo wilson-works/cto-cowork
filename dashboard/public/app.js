@@ -5,14 +5,15 @@
   const token = document.querySelector('meta[name="cowork-token"]').content;
   const $ = (id) => document.getElementById(id);
   const JOKES = [
-    'James: "Easy does it. One lane at a time, and every lane gets a DONE-WHEN."',
-    'John: "Relax. I read the diff. Twice."',
-    'James: "Short version first. Then we earn the long one. We move."',
-    'John: "Smallest correct change. Then coffee."',
+    'James: "Every lane gets an owner and a DONE-WHEN. That\'s the job."',
+    'John: "I read the diff. Twice. Then I sign it."',
+    'James: "Short version for the owner, long version for the lanes. We move."',
+    'John: "Smallest correct change. Then we light the cigars."',
     'James: "We plan it, you paste it. Nobody starts a lane behind your back."',
     'John: "Two lanes in one file is how Tuesdays get long."',
     'James: "The gate grades the work. We don\'t grade our own homework."',
-    'John: "Clean diff, clean conscience."',
+    'John: "Spec first, then code, then the good bottle."',
+    'James: "My door is open. The run board is not a suggestion."',
   ];
   const open = new Set();
   let busy = false;
@@ -30,17 +31,17 @@
 
   /* ------------------------------------------------------------------ the scene
    * The picture follows the run (the server's `scene`, engine/runs.js sceneOf): Tim walks in with a new direction,
-   * then James and John read, draw the flowchart, John makes his call, John draws the spec sheets, then done (or
-   * didn't land). Each scene is art/<scene>.svg, drawn by art/build.py, put in the page as SVG so app.css can move its
-   * parts, and crossfaded. ?scene=<name> shows one scene and holds it (for a look at each one). */
+   * then James and John read, James draws the run on the board, John makes his call, John prints the spec, then a
+   * toast (or didn't land). Each scene is art/<scene>.svg, drawn by art/build.py, put in the page as SVG so app.css can
+   * move its parts, and crossfaded. ?scene=<name> shows one scene and holds it (for a look at each one). */
   const SCENES = ['idle', 'tim', 'reading', 'flowchart', 'consulting', 'spec', 'done', 'failed'];
   const CAPTIONS = {
-    idle: "In the office. Dinner's on the table.",
-    tim: 'Tim just walked in with a new direction.',
-    reading: 'Reading the state. Takeout in hand.',
+    idle: "Late at the office. Dinner's on the desk.",
+    tim: "Tim's in with your memo.",
+    reading: 'Reading the state. Cigars lit.',
     flowchart: 'James is drawing the run on the board.',
     consulting: 'John is making his call.',
-    spec: 'John is drawing the spec sheets.',
+    spec: 'John is printing the spec.',
     done: 'Done. The paste blocks are up.',
     failed: "That one didn't land.",
   };
@@ -82,7 +83,7 @@
     shown = name;
   }
 
-  const WORDS = { starting: 'Starting', running: 'Working', finished: 'Composed', failed: 'Did not publish', stopped: 'Stopped' };
+  const WORDS = { starting: 'Starting', running: 'In session', finished: 'Composed', failed: 'Did not publish', stopped: 'Stopped' };
   const SHAPES = { starting: '◌', running: '●', finished: '■', failed: '▲', stopped: '◆' };
 
   function clock(iso) {

@@ -30,7 +30,11 @@ runs/training/ with TRAINING on the first line of its RUN.md.
 - dashboard/server.js: 127.0.0.1:7560, a per-start token carried by the page, Host and Origin checks, /health with no
   token, dashboard/.pid while it runs. The phone address lives in cowork.config.json, never committed.
 - engine/: config.js, look.js, compose.js, runs.js (start, stop, list), run.js (the runner), publish.js, detach.vbs.
-- art.svg (the scene), mark.svg. Kit: concrete, graphite, cobalt, safety orange (never as text). Flat isometric art.
+- art.svg (the scene), mark.svg, art/: every picture is drawn by art/build.py (edit it, never the SVGs). The look (owner
+  2026-10-07): the CTO's office in a 1980s software startup at night, Mad Men meets Saturday-morning cartoon. Shirtsleeves
+  rolled, ties loosened, whisky, two cigars, Chinese takeout, the org chart with the two of them at the top, one partners'
+  desk with both nameplates. Kit: walnut, memo paper, brass, oxblood for the one action, phosphor green for the paste
+  blocks. Type: Bodoni Moda, Courier Prime, VT323 (SIL OFL, dashboard/public/fonts/).
 - state/: the runs, their logs and the lock. Git-ignored.
 
 ## Working here

@@ -20,7 +20,7 @@
  *
  * Files it serves (GET and HEAD), never a dot-file:
  *   /                  dashboard/public/index.html, with this start's token in it
- *   /<file>            dashboard/public/<file>   (app.js, app.css)
+ *   /<file>            dashboard/public/<file>   (app.js, app.css, fonts/<face>.woff2)
  *   /art/<file>        art/<file>
  *   /art.svg, /mark.svg   the scene and the mark
  *
@@ -48,6 +48,7 @@ const STATIC_MAX = 4 * 1024 * 1024;
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.json': 'application/json; charset=utf-8', '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
 };
 const PAGE_CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; " +
   "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";

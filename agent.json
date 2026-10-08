@@ -20,23 +20,24 @@
     "james and john"
   ],
   "brand": {
-    "bg": "#CBD9D3",
-    "panel": "#F3F6F4",
-    "ink": "#1E2A2A",
-    "accent": "#2E6B66",
-    "accent2": "#D9895B",
-    "font": "\"Segoe UI Variable Display\", -apple-system, \"Segoe UI\", system-ui, sans-serif",
+    "bg": "#5E3D25",
+    "panel": "#F4EAD2",
+    "ink": "#17110D",
+    "accent": "#8E2A20",
+    "accent2": "#C9A24A",
+    "font": "\"Courier Prime\", \"Courier New\", Courier, monospace",
     "mark": "mark.svg"
   },
   "art": "art.svg",
   "jokes": [
-    "James: Easy does it. One lane at a time, and every lane gets a DONE-WHEN.",
-    "John: Relax. I read the diff. Twice.",
-    "James: Short version first. Then we earn the long one. We move.",
-    "John: Smallest correct change. Then coffee.",
+    "James: Every lane gets an owner and a DONE-WHEN. That's the job.",
+    "John: I read the diff. Twice. Then I sign it.",
+    "James: Short version for the owner, long version for the lanes. We move.",
+    "John: Smallest correct change. Then we light the cigars.",
     "James: We plan it, you paste it. Nobody starts a lane behind your back.",
     "John: Two lanes in one file is how Tuesdays get long.",
     "James: The gate grades the work. We don't grade our own homework.",
-    "John: Clean diff, clean conscience."
+    "John: Spec first, then code, then the good bottle.",
+    "James: My door is open. The run board is not a suggestion."
   ]
 }

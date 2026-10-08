@@ -11,42 +11,53 @@
 </head>
 <body>
 <header class="top">
-  <img class="mark" src="/mark.svg" alt="" width="44" height="44">
-  <div class="plate">
-    <h1>James and John's Coworking Space</h1>
-    <p class="line">The CTO and the Chief Engineer plan your next run and hand you the paste blocks.</p>
+  <div class="lintel">
+    <img class="mark" src="/mark.svg" alt="" width="56" height="56">
+    <div class="plate">
+      <p class="eyebrow">Office of the CTO · Chief Engineer</p>
+      <h1>James and John's Coworking Space</h1>
+    </div>
   </div>
+  <p class="line">The CTO and the Chief Engineer plan your next run and hand you the paste blocks.</p>
 </header>
 
 <section class="stage" aria-label="The office right now">
   <figure class="scene-box">
-    <div class="scene" id="scene" data-scene="idle"><img src="/art.svg" alt="James stands easy by the run board with a coffee; John is on the sofa reading a diff. Dinner waits on the coffee table in takeout boxes." width="640" height="400"></div>
-    <figcaption id="scene-cap">In the office. Dinner's on the table.</figcaption>
+    <div class="tv">
+      <div class="scene" id="scene" data-scene="idle"><img src="/art.svg" alt="Ten to eleven at night in the CTO's office. John, the Chief Engineer, types at the terminal behind the partners' desk; James, the CTO, stands by the window with a whisky. Two cigars smoulder in the ashtray, Chinese takeout waits on the desk, and the org chart on the wall has the two of them at the top." width="640" height="400"></div>
+    </div>
+    <figcaption id="scene-cap">Late at the office. Dinner's on the desk.</figcaption>
   </figure>
 </section>
 
 <main class="room">
   <section class="desk" aria-labelledby="ask-h">
     <h2 id="ask-h" class="tape">New direction</h2>
-    <form id="ask" novalidate>
+    <form id="ask" class="memo" novalidate>
+      <p class="memo-head" aria-hidden="true">Interoffice memo</p>
+      <dl class="memo-to">
+        <dt>To</dt><dd>James (CTO), John (Chief Engineer)</dd>
+        <dt>From</dt><dd>Patrick</dd>
+        <dt>Re</dt><dd>The next run</dd>
+      </dl>
       <label for="direction">Tell James and John what you need</label>
       <textarea id="direction" name="direction" rows="6" maxlength="4000" required
         placeholder="For example: plan a one-lane run that checks every agent door's phone address answers."></textarea>
       <label class="switch"><input type="checkbox" id="training" role="switch"> Training run (a proof, filed under runs/training, never launched)</label>
-      <button type="submit" id="go">Start</button>
+      <button type="submit" id="go">Send the memo</button>
       <p class="hint" id="ask-msg" role="status" aria-live="polite"></p>
     </form>
     <div id="now" class="now" hidden>
-      <p class="card"><span class="tag">IN SESSION</span> <span id="now-text"></span></p>
+      <p class="card"><span class="tag">In session</span> <span id="now-text"></span></p>
       <button type="button" id="stop" class="quiet">Stop this run</button>
     </div>
     <p class="joke" id="joke"></p>
   </section>
 
   <section class="runs" aria-labelledby="runs-h">
-    <h2 id="runs-h" class="tape">Runs</h2>
+    <h2 id="runs-h" class="tape">The run files</h2>
     <ol id="list" class="list"></ol>
-    <p id="empty" class="hint" hidden>No runs yet. Give them a direction and they will compose one.</p>
+    <p id="empty" class="hint" hidden>No runs yet. Send them a memo and they will compose one.</p>
   </section>
 </main>
 <p class="sr" id="live" aria-live="polite"></p>
