@@ -74,28 +74,34 @@ h1 { margin: 2px 0 0; font: 700 clamp(1.3rem, 4.4vw, 2.05rem)/1.12 var(--display
 }
 
 /* What moves (classes from art/build.py), the way Saturday-morning cels moved: a few drawings, held. Tim walks in
-   with the memo; the cigars smoke and glow; the screen types and its cursor blinks; John taps the keys; James draws the
-   run; the printer head runs and the spec feeds off the desk; glasses go up; the city twinkles; everyone blinks.
-   Reduced motion: every scene holds still. */
-.scene .tim { animation: cw-walk 2s steps(9, end) both; }
-@keyframes cw-walk { from { transform: translateX(-190px); } to { transform: none; } }
-.scene .walk { animation: cw-bob .22s steps(1, end) 9 alternate; }
-@keyframes cw-bob { to { transform: translateY(-3px); } }
+   with the memo; the cigars smoke and glow; whoever is in the chair taps the keys; the other paces; James draws the run;
+   the printer head runs and the spec feeds off the desk; glasses go up; the city twinkles; everyone blinks.
+   Reduced motion: every scene holds still (the clock and the sky still keep the time). */
+/* Walking is drawn, not slid: a walker is side-on, his legs an eight-drawing cycle (f0..f7, 0.15 s each, so his feet
+   keep pace with the floor) and his upper body bobbing with each step. Tim walks in for 3 s, then turns to the room. */
+.scene .f { animation: cw-frame 1.2s linear infinite; }
+.scene .f1 { animation-delay: -1.05s; } .scene .f2 { animation-delay: -.9s; } .scene .f3 { animation-delay: -.75s; }
+.scene .f4 { animation-delay: -.6s; } .scene .f5 { animation-delay: -.45s; } .scene .f6 { animation-delay: -.3s; }
+.scene .f7 { animation-delay: -.15s; }
+@keyframes cw-frame { 0%, 12.49% { opacity: 1; } 12.5%, 100% { opacity: 0; } }
+.scene .bob { animation: cw-bob .6s linear infinite; }
+@keyframes cw-bob { 0%, 24.9% { transform: none; } 25%, 49.9% { transform: translateY(2px); } 50%, 74.9% { transform: none; } 75%, 100% { transform: translateY(-1.5px); } }
+.scene .tim { animation: cw-walk-in 3s linear both; }
+@keyframes cw-walk-in { from { transform: translateX(-150px); } to { transform: none; } }
+.scene .tim-side { animation: cw-arrive-side 3s linear both; }
+.scene .tim-front { animation: cw-arrive-front 3s linear both; }
+@keyframes cw-arrive-side { 0%, 99.9% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes cw-arrive-front { 0%, 99.9% { opacity: 0; } 100% { opacity: 1; } }
 .scene .bubble { transform-box: fill-box; transform-origin: 50% 100%; animation: cw-pop .4s .4s both; }
-.scene .tim ~ .bubble { animation-delay: 2.1s; }
+.scene .tim ~ .bubble { animation-delay: 3.1s; }
 @keyframes cw-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
-.scene .wave { transform-box: fill-box; transform-origin: 0% 100%; animation: cw-wave .3s steps(1, end) 2.1s 6 alternate; }
+.scene .wave { transform-box: fill-box; transform-origin: 0% 100%; animation: cw-wave .3s steps(1, end) 3.1s 6 alternate; }
 @keyframes cw-wave { to { transform: rotate(-9deg); } }
 .scene .smoke { transform-box: fill-box; transform-origin: 50% 100%; animation: cw-smoke 4.4s ease-in-out infinite; }
 .scene .smoke.s2 { animation-delay: 2.2s; }
 @keyframes cw-smoke { 0% { opacity: 0; transform: translateY(8px) scaleY(.7); } 35% { opacity: .65; } 100% { opacity: 0; transform: translateY(-16px) scaleY(1.15) skewX(6deg); } }
 .scene .ember { animation: cw-ember 1.7s ease-in-out infinite alternate; }
 @keyframes cw-ember { to { fill: #FFB25E; } }
-.scene .cursor, .scene .flash { animation: cw-blink 1s steps(1, end) infinite; }
-@keyframes cw-blink { 50% { opacity: 0; } }
-.scene .type { transform-box: fill-box; transform-origin: 0 50%; animation: cw-type 6s steps(5, end) infinite; }
-.scene .type.t2 { animation-delay: .7s; } .scene .type.t3 { animation-delay: 1.4s; } .scene .type.t4 { animation-delay: 2.1s; }
-@keyframes cw-type { 0% { transform: scaleX(0); } 20%, 90% { transform: none; } 100% { transform: scaleX(0); } }
 .scene .tap { animation: cw-tap .24s steps(1, end) infinite alternate; }
 .scene .tap-r { animation-delay: .12s; }
 @keyframes cw-tap { to { transform: translateY(-2px); } }
@@ -114,8 +120,14 @@ h1 { margin: 2px 0 0; font: 700 clamp(1.3rem, 4.4vw, 2.05rem)/1.12 var(--display
 @keyframes cw-lids { 0%, 94% { opacity: 0; } 95%, 97% { opacity: 1; } 98% { opacity: 0; } }
 .scene .twinkle { animation: cw-twinkle 3.2s steps(1, end) infinite; }
 @keyframes cw-twinkle { 50% { opacity: .15; } }
-.scene .minute { transform-box: fill-box; transform-origin: 100% 100%; animation: cw-minute 180s linear infinite; }
-@keyframes cw-minute { to { transform: rotate(360deg); } }
+/* Pacing: a man walks his beat in front of the window, side-on, and turns round at each end (about his own feet: the
+   SVG gives transform-origin). 104 px each way in 2.4 s keeps step with his legs. The clock and the window are moved
+   by app.js, not here. */
+.scene .pace { animation: cw-pace 4.8s linear infinite; }
+@keyframes cw-pace {
+  0% { transform: translateX(0) scaleX(1); } 49.99% { transform: translateX(-104px) scaleX(1); }
+  50% { transform: translateX(-104px) scaleX(-1); } 99.99% { transform: translateX(0) scaleX(-1); } 100% { transform: translateX(0) scaleX(1); }
+}
 .scene .draw { stroke-dasharray: 160; stroke-dashoffset: 160; animation: cw-draw 10s ease-in-out infinite; }
 .scene .draw.d2 { animation-delay: .5s; } .scene .draw.d3 { animation-delay: 1s; } .scene .draw.d4 { animation-delay: 1.5s; }
 .scene .draw.d5 { animation-delay: 2s; } .scene .draw.d6 { animation-delay: 2.5s; } .scene .draw.d7 { animation-delay: 3s; }

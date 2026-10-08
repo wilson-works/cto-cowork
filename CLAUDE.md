@@ -34,7 +34,10 @@ runs/training/ with TRAINING on the first line of its RUN.md.
   2026-10-07): the CTO's office in a 1980s software startup at night, Mad Men meets Saturday-morning cartoon. Shirtsleeves
   rolled, ties loosened, whisky, two cigars, Chinese takeout, the org chart with the two of them at the top, one partners'
   desk with both nameplates. Kit: walnut, memo paper, brass, oxblood for the one action, phosphor green for the paste
-  blocks. Type: Bodoni Moda, Courier Prime, VT323 (SIL OFL, dashboard/public/fonts/).
+  blocks. Type: Bodoni Moda, Courier Prime, VT323 (SIL OFL, dashboard/public/fonts/). Owner, same night: cartoon hands
+  (three fingers and a thumb), the desk's front to us and the PC facing the chair, the two of them taking turns at the
+  keys, pacing (drawn side-on, never slid) and on their feet together. The clock keeps Central time and the window
+  follows the day (dashboard/public/app.js).
 - state/: the runs, their logs and the lock. Git-ignored.
 
 ## Working here
