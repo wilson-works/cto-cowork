@@ -36,15 +36,87 @@
    * move its parts, and crossfaded. ?scene=<name> shows one scene and holds it (for a look at each one). */
   const SCENES = ['idle', 'tim', 'reading', 'flowchart', 'consulting', 'spec', 'done', 'failed'];
   const CAPTIONS = {
-    idle: "Late at the office. Dinner's on the desk.",
+    idle: "At the office. Takeout's on the desk.",
     tim: "Tim's in with your memo.",
-    reading: 'Reading the state. Cigars lit.',
+    reading: 'James at the keys, John reading the memo.',
     flowchart: 'James is drawing the run on the board.',
     consulting: 'John is making his call.',
     spec: 'John is printing the spec.',
     done: 'Done. The paste blocks are up.',
     failed: "That one didn't land.",
   };
+
+  /* ------------------------------------------------------------------ the clock and the window
+   * Every scene is drawn at ten to eleven at night. Here the clock on the wall keeps Central time (its hands turn by
+   * their transform about the clock's centre) and the city through the window follows the day: the sky's four bands,
+   * the sun crossing between the towers, the moon and the stars after dark, the towers' windows lit at night. */
+  const CLOCK = [317, 23];
+  const NIGHT = { sky: ['#1B1638', '#231C45', '#2E2552', '#3C2C5C'], back: '#1E2040', front: '#15172E', dark: 1 };
+  const DAY = { sky: ['#4A92D8', '#73B0E6', '#A0CBEE', '#CFE3F2'], back: '#7A8EA8', front: '#5A6C88', dark: 0 };
+  const SKY = [
+    [0, NIGHT], [5.25, NIGHT],
+    [6.25, { sky: ['#2E3270', '#5B4C8A', '#C0708A', '#F2A26A'], back: '#2C2F55', front: '#1F2240', dark: 0.7 }],
+    [7.5, { sky: ['#4F8FD0', '#79AEDF', '#A9CBE8', '#E5D9BE'], back: '#6F84A0', front: '#51627E', dark: 0.1 }],
+    [9, DAY], [16.5, DAY],
+    [18.25, { sky: ['#3F5A9C', '#7B6FA8', '#E08A78', '#F5B062'], back: '#4A5272', front: '#33395A', dark: 0.3 }],
+    [19.5, { sky: ['#241E4A', '#3A2D63', '#7A4A7A', '#C0607A'], back: '#262848', front: '#1A1C36', dark: 0.8 }],
+    [20.75, NIGHT], [24, NIGHT],
+  ];
+  const WINDOW_BY_DAY = '#A9BCD0';
+  const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const mix = (a, b, t) => '#' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t).toString(16).padStart(2, '0')).join('');
+
+  function chicago() {
+    try {
+      const p = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23' }).formatToParts(new Date());
+      const g = (t) => Number((p.find((x) => x.type === t) || {}).value || 0);
+      return { h: g('hour'), m: g('minute'), s: g('second') };
+    } catch (_) {
+      const d = new Date();
+      return { h: d.getHours(), m: d.getMinutes(), s: d.getSeconds() };
+    }
+  }
+
+  function skyAt(hour) {
+    let i = 0;
+    while (i < SKY.length - 2 && SKY[i + 1][0] <= hour) i++;
+    const [h0, a] = SKY[i];
+    const [h1, b] = SKY[i + 1];
+    const t = h1 > h0 ? Math.min(1, Math.max(0, (hour - h0) / (h1 - h0))) : 0;
+    return { sky: a.sky.map((c, k) => mix(c, b.sky[k], t)), back: mix(a.back, b.back, t), front: mix(a.front, b.front, t), dark: a.dark + (b.dark - a.dark) * t };
+  }
+
+  function setTime(svg, now) {
+    const turn = (sel, deg) => { const el = svg.querySelector(sel); if (el) el.setAttribute('transform', `rotate(${deg.toFixed(2)} ${CLOCK[0]} ${CLOCK[1]})`); };
+    turn('.clock .hour', ((now.h % 12) + now.m / 60) * 30);
+    turn('.clock .minute', (now.m + now.s / 60) * 6);
+    turn('.clock .second', now.s * 6);
+  }
+
+  function setDay(svg, now) {
+    const hour = now.h + now.m / 60;
+    const k = skyAt(hour);
+    const all = (sel, attr, v) => svg.querySelectorAll(sel).forEach((el) => el.setAttribute(attr, typeof v === 'function' ? v(el) : v));
+    all('.window .sky', 'fill', (el) => k.sky[Number(el.getAttribute('data-band')) || 0]);
+    all('.window .bldg-back', 'fill', k.back);
+    all('.window .bldg-front', 'fill', k.front);
+    all('.window .lit', 'fill', (el) => mix(WINDOW_BY_DAY, el.getAttribute('data-c') || '#F2C14E', k.dark));
+    all('.window .stars', 'opacity', (k.dark * k.dark).toFixed(2));
+    all('.window .moon', 'opacity', k.dark.toFixed(2));
+    // Sunrise to sunset in Chicago, near enough the year round; the sun arcs across the window between the towers.
+    const t = (hour - 6.25) / (19.5 - 6.25);
+    const up = t > 0 && t < 1;
+    all('.window .sun', 'opacity', up ? Math.min(1, Math.min(t, 1 - t) * 8).toFixed(2) : '0');
+    if (up) all('.window .sun', 'transform', `translate(${(420 + t * 176).toFixed(1)} ${(206 - Math.sin(Math.PI * t) * 108).toFixed(1)})`);
+  }
+
+  let lastMinute = -1;
+  setInterval(() => {
+    const now = chicago();
+    const svgs = $('scene').querySelectorAll('svg');
+    svgs.forEach((svg) => setTime(svg, now));
+    if (now.m !== lastMinute) { lastMinute = now.m; svgs.forEach((svg) => setDay(svg, now)); }
+  }, 1000);
   const pinned = (() => { try { const s = new URLSearchParams(location.search).get('scene'); return SCENES.includes(s) ? s : null; } catch (_) { return null; } })();
   const svgCache = new Map();
   let shown = null;
@@ -74,6 +146,9 @@
     const box = $('scene');
     const layer = document.createElement('div');
     layer.className = 'layer';
+    const now = chicago();
+    setTime(svg, now);
+    setDay(svg, now);
     layer.appendChild(svg);
     box.appendChild(layer);
     box.setAttribute('data-scene', name);

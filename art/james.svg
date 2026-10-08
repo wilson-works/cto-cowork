@@ -22,16 +22,14 @@
     <path d="M-16.5,-222 C-19.5,-238 -12,-250 2,-250 C15,-250 20.5,-240 16.5,-222 C15.5,-230 12,-235 7,-236 C2,-240 -6,-240 -10,-236 C-13,-233 -15,-228 -16.5,-222 Z" fill="#2A211C"/>
     <path d="M-10,-238 C-5,-247 7,-248 13,-240" fill="none" stroke="#4A3B30" stroke-width="1.6"/>
     <path d="M-16.5,-223 C-17,-227 -16.5,-230 -15.5,-232 L-14,-226 Z M16.5,-223 C17,-227 16.5,-230 15.5,-232 L14,-226 Z" fill="#B3ADA5" stroke-width="1.2"/>
-    <ellipse cx="-4.6" cy="-221" rx="4.4" ry="5.6" fill="#FFFFFF" stroke-width="1.8"/>
-    <circle cx="-4.6" cy="-219" r="1.7" fill="#17110D" stroke="none"/>
-    <path d="M-9,-222.6 C-9,-229.4 -0.2,-229.4 -0.2,-222.6 Q-4.6,-221.4 -9,-222.6 Z" fill="#D6A07C" stroke-width="1.8"/>
-    <ellipse cx="4.6" cy="-221" rx="4.4" ry="5.6" fill="#FFFFFF" stroke-width="1.8"/>
-    <circle cx="4.6" cy="-219" r="1.7" fill="#17110D" stroke="none"/>
-    <path d="M0.2,-222.6 C0.2,-229.4 9,-229.4 9,-222.6 Q4.6,-221.4 0.2,-222.6 Z" fill="#D6A07C" stroke-width="1.8"/>
-    <g class="blink" opacity="0"><ellipse cx="-4.6" cy="-221" rx="4.4" ry="5.6" fill="#D6A07C" stroke-width="1.8"/><ellipse cx="4.6" cy="-221" rx="4.4" ry="5.6" fill="#D6A07C" stroke-width="1.8"/></g>
-    <path d="M-10,-230.5 L-2,-231.5 M2,-231.5 L10,-229.5" fill="none" stroke-width="2.8"/>
-    <path d="M0.5,-215 Q5,-207 1,-206 Q-1.5,-205.6 -3,-207" fill="none" stroke-width="1.6"/>
-    <path d="M-6,-201.5 Q0,-199 6.5,-203.5" fill="none" stroke-width="1.8"/><path d="M6.5,-203.5 L7.5,-205" stroke-width="1.4"/>
+    <ellipse cx="-4.4" cy="-221" rx="4.2" ry="5.2" fill="#FFFFFF" stroke-width="1.8"/>
+    <circle cx="-4.4" cy="-220.5" r="1.6" fill="#17110D" stroke="none"/>
+    <ellipse cx="4.4" cy="-221" rx="4.2" ry="5.2" fill="#FFFFFF" stroke-width="1.8"/>
+    <circle cx="4.4" cy="-220.5" r="1.6" fill="#17110D" stroke="none"/>
+    <g class="blink" opacity="0"><ellipse cx="-4.4" cy="-221" rx="4.2" ry="5.2" fill="#D6A07C" stroke-width="1.8"/><ellipse cx="4.4" cy="-221" rx="4.2" ry="5.2" fill="#D6A07C" stroke-width="1.8"/></g>
+    <path d="M-10,-230.5 L-2,-231 M2,-231 L10,-230.5" fill="none" stroke-width="2.6"/>
+    <path d="M0.5,-215 Q4.5,-207.5 1,-206.5 Q-1.5,-206 -3,-207.5" fill="none" stroke-width="1.6"/>
+    <path d="M-5.5,-202.2 Q0,-198.6 5.5,-202.2" fill="none" stroke-width="1.8"/>
     <path d="M-2.5,-196.6 Q0,-195.6 2.5,-196.6" fill="none" stroke="#9A6A4C" stroke-width="1.2"/>
     </g>
   </g>
