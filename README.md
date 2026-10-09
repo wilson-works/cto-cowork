@@ -36,7 +36,8 @@ the work and John, the chief engineer, checks the plan. It runs best inside the 
 4. Open http://127.0.0.1:7560/, or Wake it from the office's Agents' wing.
 
 Without a Workspace, it still runs: put `"hub"` (your Hub folder, the one with your CLAUDE.md) and, if your fleet repo
-lives somewhere else, `"fleet_ops"` in `cowork.config.json`. Add `"owner": "<your name>"` and James will report to you
+lives somewhere else, `"fleet_ops"` in `cowork.config.json`. It needs John's definition, `chief-engineer-john.md`
+(from the CTO org), in `~/.claude/agents` or in the folder you name as `"agents_dir"`. Add `"owner": "<your name>"` and James will report to you
 by name. The space ships an example run (`examples/run/`) that it reads when your fleet repo has none of its own.
 
 ## Make your own version
