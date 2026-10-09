@@ -20,6 +20,32 @@ then put that address in cowork.config.json (copy cowork.config.example.json). T
 Node 20 or newer, Claude Code signed in on this computer, and a fleet-ops clone in the Hub (50-AI/fleet-ops). The run
 reads the org's definitions for John from ~/.claude/agents.
 
+## Install it
+
+The space is free, and it is the front office of the WilsonWorks CTO org (the Dev Team pack): James, the CTO, plans
+the work and John, the chief engineer, checks the plan. It runs best inside the free
+[WilsonWorks Workspace](https://github.com/wilson-works/workspace), which brings everything it needs:
+
+1. Install the Workspace (its `SETUP.md`), with its fleet (`fleet/README.md`) so you have a fleet repo at
+   `<Hub>/50-AI/fleet-ops`.
+2. Install the CTO org into your Hub folder from the Workspace (`org/INSTALL.md`:
+   `node bin/install.js org --into "<your Hub folder>" --apply`). That puts James, John and their team in
+   `<Hub>/.claude/agents`, where the space finds John (it also looks in `~/.claude/agents`).
+3. Install the space: `node agents/bin/install-agent.js cowork` from the Workspace folder, or clone this repo and run
+   `node dashboard/server.js`.
+4. Open http://127.0.0.1:7560/, or Wake it from the office's Agents' wing.
+
+Without a Workspace, it still runs: put `"hub"` (your Hub folder, the one with your CLAUDE.md) and, if your fleet repo
+lives somewhere else, `"fleet_ops"` in `cowork.config.json`. Add `"owner": "<your name>"` and James will report to you
+by name. The space ships an example run (`examples/run/`) that it reads when your fleet repo has none of its own.
+
+## Make your own version
+
+Everything that makes the space what it is lives in plain files: how James composes a run (`engine/compose.js`), what
+he may read (`engine/look.js`) and the room itself (`art/build.py` draws every picture, `dashboard/public/`). Change
+them, or ask Claude to. If you'd like a version built around your own team and the way you work, WilsonWorks builds
+personalized versions: https://wilsonworks.studio/ai-consulting/agents
+
 ## A run
 
 A direction starts one headless Claude Code session (Opus 5.5, effort high, 40-minute cap). It may read the Hub's repos

@@ -13,7 +13,9 @@
  *     "fleet_ops": "<hub>\\50-AI\\fleet-ops",
  *     "rigs": "D:\\tmp\\rigs",            where each run's staging folder goes (else <hub drive>\tmp\rigs)
  *     "claude": "<path to claude.exe>",   else the VS Code extension's newest, else claude.exe or claude.cmd on the PATH
- *     "model": "claude-opus-5-5", "effort": "high", "cap_minutes": 40
+ *     "model": "claude-opus-5-5", "effort": "high", "cap_minutes": 40,
+ *     "owner": "Pat",                     the name James reports to in a run's prompt (else "the owner")
+ *     "agents_dir": "<folder>"            where chief-engineer-john.md is (else ~/.claude/agents or <hub>\.claude\agents)
  *   }
  * The code zone is found by probing both of the Hub's names for it (20-Coding\Projects on HQ, 20-Coding\Active on
  * ENGINE and FIELD), never assumed.
@@ -111,21 +113,38 @@ function load(home) {
   if (!hub) notes.push('No Hub found (D:\\Hub or C:\\Hub with a CLAUDE.md). Name it as "hub" in cowork.config.json.');
   const codeZone = codeZoneOf(hub);
   const fleetOps = cfg.fleet_ops || (hub ? path.join(hub, '50-AI', 'fleet-ops') : null);
-  const fleetOffice = codeZone ? path.join(codeZone, 'fleet-office') : null;
+  // The office whose hooks show a run on the floor: fleet-office in the code zone (HQ), else a WilsonWorks Workspace
+  // installed in the Hub (<hub>\50-AI\workspace), which carries the same hooks.
+  const officeIn = [codeZone && path.join(codeZone, 'fleet-office'), hub && path.join(hub, '50-AI', 'workspace')].filter(Boolean);
+  const fleetOffice = officeIn.find((d) => fs.existsSync(path.join(d, '.claude', 'hooks', 'office-hook.js'))) || officeIn[0] || null;
+  // The owner's name in the run's prompt ("You report to <owner>"); left out, it says "the owner".
+  const owner = typeof cfg.owner === 'string' && cfg.owner.trim() ? cfg.owner.trim().slice(0, 40) : null;
   const rigs = cfg.rigs || (hub ? path.join(path.parse(hub).root, 'tmp', 'rigs') : path.join(os.tmpdir(), 'cowork-rigs'));
   const claude = findClaude(cfg.claude);
   if (!claude) notes.push('Claude Code was not found on the PATH. Name its program as "claude" in cowork.config.json.');
   const capMinutes = cfg.cap_minutes == null ? 40 : cfg.cap_minutes;
   if (!Number.isInteger(capMinutes) || capMinutes < 2 || capMinutes > 120) throw new Error('"cap_minutes" must be a whole number from 2 to 120.');
   return {
-    home: h, port, phoneHost: phoneHostOf(cfg.phone), hub, codeZone, fleetOps, fleetOffice, rigs, claude,
+    home: h, port, phoneHost: phoneHostOf(cfg.phone), hub, codeZone, fleetOps, fleetOffice, rigs, claude, owner,
     model: String(cfg.model || 'claude-opus-5-5'), effort: String(cfg.effort || 'high'), capMs: capMinutes * 60 * 1000,
-    agentsDir: path.join(os.homedir(), '.claude', 'agents'), skillsDir: path.join(os.homedir(), '.claude', 'skills'),
+    agentsDir: agentsDirOf(cfg, hub), skillsDir: path.join(os.homedir(), '.claude', 'skills'),
     notes,
   };
 }
 
-module.exports = { load, findClaude, findHub, codeZoneOf, phoneHostOf, DEFAULT_PORT };
+/**
+ * Where John's definition is: "agents_dir" in cowork.config.json, else the first of ~/.claude/agents (HQ: the org in
+ * user scope) and <hub>/.claude/agents (a WilsonWorks Workspace installs the CTO org into the Hub folder) that holds
+ * chief-engineer-john.md, else ~/.claude/agents.
+ */
+function agentsDirOf(cfg, hub) {
+  if (typeof cfg.agents_dir === 'string' && cfg.agents_dir) return cfg.agents_dir;
+  const user = path.join(os.homedir(), '.claude', 'agents');
+  const dirs = [user, hub && path.join(hub, '.claude', 'agents')].filter(Boolean);
+  return dirs.find((d) => fs.existsSync(path.join(d, 'chief-engineer-john.md'))) || user;
+}
+
+module.exports = { load, findClaude, findHub, codeZoneOf, phoneHostOf, agentsDirOf, DEFAULT_PORT };
 
 if (require.main === module) {
   const c = load();
