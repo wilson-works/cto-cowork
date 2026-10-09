@@ -45,6 +45,12 @@ function copyContext(cfg, dir) {
   let names = [];
   try { names = fs.readdirSync(rules).filter((n) => /^[\w.-]+\.md$/.test(n)); } catch (_) { /* none */ }
   for (const n of names) { fs.copyFileSync(path.join(rules, n), path.join(dir, 'rules', n)); copied.push(`rules/${n}`); }
+  // The example run that ships with the space, for a fleet repo that has none of its own (any computer but HQ).
+  const example = path.join(__dirname, '..', 'examples', 'run');
+  if (fs.existsSync(example)) {
+    fs.cpSync(example, path.join(dir, 'example'), { recursive: true });
+    copied.push('example/');
+  }
   return copied;
 }
 
