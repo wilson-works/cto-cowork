@@ -8,6 +8,7 @@ and the ink are the same hand in every scene. Run it from the space's folder (py
                          their feet, John makes his one call), spec (John types, the spec feeds off the printer, James
                          paces reading it), done (they clink glasses), failed
   art/door.svg           the two of them for the office door: the CTO and the Chief Engineer, side by side
+  art/office-door.svg    the CTO's office door alone, nobody in it: the space's logo (the WilsonWorks site's card)
   mark.svg               the pair, two colleagues each in their own half (the office floor shows it as their avatar)
   art/james.svg, art/john.svg   one avatar each
 
@@ -1073,6 +1074,53 @@ def door():
     return out + '</svg>\n'
 
 
+def office_door():
+    """The CTO's office door, the space's logo (owner, 2026-10-09: "Use the CTO department door as the logo choice ...
+    James and John side by side still gives too much like a couple", then "just this section": the door alone). The
+    office's door for the space, with the same parts and colours as fleet-office's skin-cowork: a strip of the walnut
+    wall, the walnut door in its frame with a frosted pane lettered in gold leaf (their names, then CTO and CHIEF
+    ENGINEER), and a brass knob on its rose. Nobody in it: the door is the department."""
+    WAL, WAL_DK, WAL_DEEP, BR_DK = '#5E3D25', '#3F2717', '#2A1A0F', '#B8893A'
+    gilt = "'Bodoni Moda', 'Bodoni 72', Didot, 'Bodoni MT', Georgia, serif"
+    s = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="66 4 168 206" width="168" height="206" role="img" aria-label="The CTO's office door: walnut, with James and John, CTO and Chief Engineer, lettered in gold on the frosted glass">
+  <title>James and John's Coworking Space</title>
+  <!-- Drawn by art/build.py; edit that, not this file. -->
+  <defs>
+    <clipPath id="od-wall"><rect x="66" y="4" width="168" height="206" rx="12"/></clipPath>
+    <clipPath id="od-glass"><rect x="108" y="42" width="84" height="78"/></clipPath>
+    <radialGradient id="od-light" cx="150" cy="0" r="150" gradientUnits="userSpaceOnUse" gradientTransform="scale(1 0.62)">
+      <stop offset="0" stop-color="#F2D49A" stop-opacity="0.34"/><stop offset="1" stop-color="#F2D49A" stop-opacity="0"/></radialGradient>
+    <linearGradient id="od-leaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A4E2C"/><stop offset="1" stop-color="#5E3D25"/></linearGradient>
+    <linearGradient id="od-pane" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D7E0DC"/><stop offset="1" stop-color="#B9C6C1"/></linearGradient>
+    <radialGradient id="od-knob" cx="0.35" cy="0.35" r="0.7"><stop offset="0" stop-color="#FFF1C2"/><stop offset="0.45" stop-color="#C9A24A"/><stop offset="1" stop-color="#7A5A1E"/></radialGradient>
+  </defs>
+  <g clip-path="url(#od-wall)">
+'''
+    # the walnut wall: a seam every 46px, grain on each board, the warm light from above, the skirting
+    s += f'    <rect width="300" height="210" fill="{WAL}"/>\n'
+    s += ''.join(f'    <path d="M{x},0 L{x},210" stroke="#000" stroke-opacity="0.22" stroke-width="2"/>'
+                 f'<path d="M{x - 37},0 L{x - 37},210 M{x - 21},0 L{x - 21},210" stroke="#FFF" stroke-opacity="0.04" stroke-width="5"/>\n'
+                 for x in range(46, 300, 46))
+    s += '    <rect width="300" height="210" fill="url(#od-light)"/>\n'
+    s += f'    <rect x="0" y="194" width="300" height="16" fill="{WAL_DK}"/><path d="M0,194.5 L300,194.5" stroke="#7A5232" stroke-width="1.4"/>\n'
+    # the door in its frame
+    s += f'    <rect x="84" y="18" width="132" height="176" fill="{WAL_DEEP}" stroke="#7A5232" stroke-width="2"/>\n'
+    s += f'    <rect x="95" y="29" width="110" height="160" fill="url(#od-leaf)" stroke="#000" stroke-opacity="0.4"/>\n'
+    s += f'    <rect x="104" y="38" width="92" height="86" fill="{WAL_DK}"/><rect x="108" y="42" width="84" height="78" fill="url(#od-pane)"/>\n'
+    s += ('    <g clip-path="url(#od-glass)" fill="#FFF"><path d="M128,42 L138,42 L104,120 L94,120 Z" fill-opacity="0.32"/>'
+          '<path d="M146,42 L151,42 L117,120 L112,120 Z" fill-opacity="0.18"/></g>\n')
+    s += f'    <rect x="104" y="133" width="92" height="50" fill="{WAL_DK}"/><rect x="108" y="137" width="84" height="42" fill="#6E4527"/>\n'
+    # the gilt on the glass, outlined in ink the way sign-writers outline gold leaf; the titles typed under it
+    for y, word in ((66, 'JAMES'), (81, 'AND JOHN')):
+        s += (f'    <text x="150" y="{y}" text-anchor="middle" font-family="{escape(gilt)}" font-size="13.5" font-weight="700" '
+              f'letter-spacing="0.7" fill="#E2B54A" stroke="{WAL_DEEP}" stroke-width="0.8" paint-order="stroke">{word}</text>\n')
+    for y, word in ((96, 'CTO'), (106, 'CHIEF ENGINEER')):
+        s += (f'    <text x="150" y="{y}" text-anchor="middle" font-family="{escape(TYPE)}" font-size="7.5" font-weight="700" '
+              f'letter-spacing="0.75" fill="{WAL_DEEP}">{word}</text>\n')
+    s += f'    <circle cx="197" cy="128.5" r="7" fill="{BR_DK}"/><circle cx="197" cy="128.5" r="4.6" fill="url(#od-knob)"/>\n'
+    return s + '  </g>\n</svg>\n'
+
+
 def avatar_svg(label, body, clip):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="{label}">
   <title>{label}</title>
@@ -1107,10 +1155,11 @@ if __name__ == '__main__':
         write(f'art/{st}.svg', scene(st))
     write('art.svg', scene('idle'))
     write('art/door.svg', door())
+    write('art/office-door.svg', office_door())
     pair = (james_bust('translate(17 162) scale(0.62)')
             + john_bust('translate(48 77) scale(0.6)')
             + f'  <path d="M32,0 L32,64" stroke="{INK}" stroke-width="1.6"/>\n')
     write('mark.svg', avatar_svg("James and John's Coworking Space", pair, 'cw-mark'))
     write('art/james.svg', avatar_svg('James, CTO', james_bust('translate(32 202) scale(0.78)'), 'cw-james'))
     write('art/john.svg', avatar_svg('John, Chief Engineer', john_bust('translate(32 96) scale(0.74)'), 'cw-john'))
-    print('drew', len(LABELS), 'scenes, the door figure, the mark and two avatars')
+    print('drew', len(LABELS), 'scenes, the door figure, the office door, the mark and two avatars')
