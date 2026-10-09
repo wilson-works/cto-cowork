@@ -138,7 +138,7 @@ function agentsJson(cfg) {
   const desc = (/^description:\s*"?(.*?)"?\s*$/m.exec(m[1]) || [])[1] || 'John, Chief Engineer.';
   const ref = path.join(cfg.agentsDir, 'references', 'chief-engineer-john.md');
   const prompt = `${m[2].trim()}\n\n## In the Coworking Space\nJames consults you once while he composes a run for the owner. ` +
-    `Your reference file is ${ref}. There is no comms bus here and you write nothing. Read what you need (repo state: ` +
+    `${fs.existsSync(ref) ? `Your reference file is ${ref}. ` : ''}There is no comms bus here and you write nothing. Read what you need (repo state: ` +
     `node ${fwd(LOOK)} <verb> ...), then answer his one question in under 300 words: which lanes collide or fail, and the smallest fix.`;
   return JSON.stringify({ 'chief-engineer-john': { description: desc, prompt, tools: ['Read', 'Grep', 'Glob', 'Bash'], model: 'opus' } });
 }
