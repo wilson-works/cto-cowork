@@ -32,7 +32,7 @@ the printer face whoever is in the chair. Colour by fill and stroke attributes o
 What moves is named by class, and the dashboard's CSS and script move it; with neither, every scene is a complete still
 at ten to eleven at night:
   CSS     tim (tim-side walks in, tim-front turns to us), wave, bubble, draw, scribble, tap, smoke, ember, feed,
-          printhead, blink, twinkle, nod, toast,
+          printhead, blink (a lid scaling down over the eye), breathe (chest and head), twinkle, nod, toast,
           pace (a man walking his beat side-on: frames f0..f7, his upper body on bob; turned round at each end)
   script  the clock's hour, minute and second hands (Central time), and the window: sky (data-band 0..3), sun, moon,
           stars, bldg-back, bldg-front and lit (data-c is its colour at night)
@@ -58,7 +58,7 @@ SHIRT_JOHN, SHIRT_JOHN_DK = '#BFD3E6', '#9FB7CE'
 TIE_JAMES, TIE_JOHN = '#A8322B', '#C8962E'
 BRACES = '#2B3A63'
 TROUSERS_JAMES, TROUSERS_JOHN = '#3A3E48', '#5A4636'
-HAIR_JAMES, HAIR_JOHN, BEARD_JOHN, HAIR_TIM = '#2A211C', '#1C1612', '#231C18', '#6B3E26'
+HAIR_JAMES, HAIR_JOHN, BEARD_JOHN, HAIR_TIM = '#2A211C', '#2B2019', '#3B2C23', '#6B3E26'
 WHISKY, WHISKY_DK, GLASS = '#A9651F', '#7E4716', '#E4EEEC'
 MANILA, MANILA_DK = '#E6C47C', '#C9A55C'
 FLOOR_Y = 390        # where feet stand in the front of the room
@@ -570,6 +570,25 @@ SJL, SJR = (-32, -45), (32, -45)            # John's shoulders
 LOOKS = {'front': (0, 0), 'left': (-1.7, 0.2), 'right': (1.7, 0.2), 'down': (0, 1.5), 'up': (0.6, -1.3)}
 
 
+IRIS_JAMES, IRIS_JOHN = '#5A3820', '#3A2216'
+
+
+def eye_parts(cx, cy, dx, dy, iris, skin, rx=3.9, ry=4.3, sw=1.6, ir=2.55):
+    """A warm eye: a white almond with a brown iris, a pupil, a catch-light and a relaxed upper lid. The iris follows the
+    look (dx, dy) but stays inside the white. Returns (the eye, the closed lid that a blink draws down over it)."""
+    ix, iy = cx + max(-1.3, min(1.3, dx * 0.8)), cy + 0.3 + max(-1.2, min(1.2, dy * 0.8))
+    e = f'<ellipse cx="{f(cx)}" cy="{f(cy)}" rx="{rx}" ry="{ry}" fill="#FFFFFF" stroke-width="{sw}"/>'
+    e += f'<circle cx="{f(ix)}" cy="{f(iy)}" r="{ir}" fill="{iris}" stroke="none"/>'
+    e += f'<circle cx="{f(ix)}" cy="{f(iy)}" r="1.2" fill="{INK}" stroke="none"/>'
+    e += f'<circle cx="{f(ix + 0.95)}" cy="{f(iy - 0.9)}" r="0.85" fill="#FFFFFF" stroke="none"/>'
+    w = rx * 0.93
+    e += (f'<path d="M{f(cx - w)},{f(cy - 2.2)} A{rx},{ry} 0 0 1 {f(cx + w)},{f(cy - 2.2)} Q{f(cx)},{f(cy - 3.5)} {f(cx - w)},{f(cy - 2.2)} Z" '
+          f'fill="{skin}" stroke-width="{sw}"/>')
+    lid = (f'<ellipse cx="{f(cx)}" cy="{f(cy)}" rx="{rx + 0.3}" ry="{ry + 0.3}" fill="{skin}" stroke-width="{sw}"/>'
+           f'<path d="M{f(cx - rx + 0.4)},{f(cy + 0.8)} Q{f(cx)},{f(cy + 3)} {f(cx + rx - 0.4)},{f(cy + 0.8)}" fill="none" stroke-width="1.5"/>')
+    return e, lid
+
+
 def james_head(look='front', expr='smile'):
     dx, dy = LOOKS[look]
     s = '    <g class="head">\n'
@@ -577,29 +596,34 @@ def james_head(look='front', expr='smile'):
     s += f'    <path d="M-7,-196 L7,-196 L7,-191 Q0,-188 -7,-191 Z" fill="{SKIN_JAMES_DK}" stroke="none"/>\n'
     s += f'    <ellipse cx="-16.5" cy="-219" rx="3.4" ry="5.6" fill="{SKIN_JAMES}"/><ellipse cx="16.5" cy="-219" rx="3.4" ry="5.6" fill="{SKIN_JAMES}"/>\n'
     # the square jaw
-    s += f'    <path d="M-15.5,-236 L-15.8,-212 C-15.8,-203 -11,-196 -4,-195 L4,-195 C11,-196 15.8,-203 15.8,-212 L15.5,-236 Z" fill="{SKIN_JAMES}"/>\n'
+    s += f'    <path d="M-15.5,-238 C-15.5,-246 15.5,-246 15.5,-238 L15.8,-212 C15.8,-203 11,-196 4,-195 L-4,-195 C-11,-196 -15.8,-203 -15.8,-212 Z" fill="{SKIN_JAMES}"/>\n'
     # slicked back, silver at the temples
     s += f'    <path d="M-16.5,-222 C-19.5,-238 -12,-250 2,-250 C15,-250 20.5,-240 16.5,-222 C15.5,-230 12,-235 7,-236 C2,-240 -6,-240 -10,-236 C-13,-233 -15,-228 -16.5,-222 Z" fill="{HAIR_JAMES}"/>\n'
     s += '    <path d="M-10,-238 C-5,-247 7,-248 13,-240" fill="none" stroke="#4A3B30" stroke-width="1.6"/>\n'
     s += '    <path d="M-16.5,-223 C-17,-227 -16.5,-230 -15.5,-232 L-14,-226 Z M16.5,-223 C17,-227 16.5,-230 15.5,-232 L14,-226 Z" fill="#B3ADA5" stroke-width="1.2"/>\n'
-    # eyes: two white ovals that touch, dot pupils; open and level
-    for ex in (-4.4, 4.4):
-        s += f'    <ellipse cx="{ex}" cy="-221" rx="4.2" ry="5.2" fill="#FFFFFF" stroke-width="1.8"/>\n'
-        s += f'    <circle cx="{f(ex + dx)}" cy="{f(-220.5 + dy)}" r="1.6" fill="{INK}" stroke="none"/>\n'
-    s += f'    <g class="blink" opacity="0"><ellipse cx="-4.4" cy="-221" rx="4.2" ry="5.2" fill="{SKIN_JAMES}" stroke-width="1.8"/><ellipse cx="4.4" cy="-221" rx="4.2" ry="5.2" fill="{SKIN_JAMES}" stroke-width="1.8"/></g>\n'
-    brow = {'stern': 'M-10,-229.5 L-2,-228 M2,-228 L10,-229.5', 'talk': 'M-10,-231.5 L-2,-232.5 M2,-232.5 L10,-231.5',
-            'listen': 'M-10,-231 L-2,-231.5 M2,-231.5 L10,-231'}.get(expr, 'M-10,-230.5 L-2,-231 M2,-231 L10,-230.5')
-    s += f'    <path d="{brow}" fill="none" stroke-width="2.6"/>\n'
+    # eyes: almond whites apart, brown irises with a catch-light, a relaxed upper lid; they blink by a lid coming down
+    lids = ''
+    for ex in (-5.6, 5.6):
+        e, lid = eye_parts(ex, -221, dx, dy, IRIS_JAMES, SKIN_JAMES)
+        s += '    ' + e + '\n'
+        lids += lid
+    s += f'    <g class="blink" opacity="0">{lids}</g>\n'
+    s += '    <ellipse cx="-10.6" cy="-209.5" rx="3.6" ry="2.2" fill="#E0806C" fill-opacity="0.3" stroke="none"/><ellipse cx="10.6" cy="-209.5" rx="3.6" ry="2.2" fill="#E0806C" fill-opacity="0.3" stroke="none"/>\n'
+    brow = {'stern': 'M-10.5,-227.2 Q-6.5,-229.8 -2,-230 M2,-230 Q6.5,-229.8 10.5,-227.2',
+            'talk': 'M-10.5,-230 Q-6.5,-232.6 -2,-231 M2,-231 Q6.5,-232.6 10.5,-230',
+            'listen': 'M-10.5,-229.6 Q-6.5,-231.8 -2,-230.4 M2,-230.4 Q6.5,-231.8 10.5,-229.6'}.get(expr, 'M-10.5,-229 Q-6.5,-231.4 -2,-230 M2,-230 Q6.5,-231.4 10.5,-229')
+    s += f'    <path d="{brow}" fill="none" stroke-width="2.1"/>\n'
     nx = dx * 0.6
-    s += f'    <path d="M{f(0.5 + nx)},-215 Q{f(4.5 + nx)},-207.5 {f(1 + nx)},-206.5 Q{f(-1.5 + nx)},-206 {f(-3 + nx)},-207.5" fill="none" stroke-width="1.6"/>\n'
+    s += f'    <path d="M{f(0.5 + nx)},-216 Q{f(3.8 + nx)},-209.5 {f(1 + nx)},-208.2 Q{f(-1 + nx)},-207.8 {f(-2.6 + nx)},-209" fill="none" stroke-width="1.5"/>\n'
     mx = dx * 0.5
     if expr == 'talk':
-        s += f'    <path d="M{f(-6 + mx)},-202.5 Q{f(mx)},-200.5 {f(6 + mx)},-202.5 Q{f(3 + mx)},-196 {f(mx)},-196.5 Q{f(-3 + mx)},-196 {f(-6 + mx)},-202.5 Z" fill="#5A2320" stroke-width="1.6"/>\n'
-        s += f'    <path d="M{f(-3.5 + mx)},-201.6 L{f(3.5 + mx)},-201.6" stroke="#FFFFFF" stroke-width="1.4"/>\n'
+        s += f'    <path d="M{f(-6 + mx)},-203 Q{f(mx)},-201 {f(6 + mx)},-203 Q{f(3 + mx)},-196.5 {f(mx)},-197 Q{f(-3 + mx)},-196.5 {f(-6 + mx)},-203 Z" fill="#5A2320" stroke-width="1.5"/>\n'
+        s += f'    <path d="M{f(-3.8 + mx)},-202 L{f(3.8 + mx)},-202" stroke="#FFFFFF" stroke-width="1.5"/>\n'
     elif expr in ('stern', 'listen'):
-        s += f'    <path d="M{f(-4.5 + mx)},-201.2 Q{f(mx)},-200.4 {f(4.5 + mx)},-201.2" fill="none" stroke-width="1.8"/>\n'
+        s += f'    <path d="M{f(-4.5 + mx)},-201.4 Q{f(mx)},-200 {f(4.5 + mx)},-201.4" fill="none" stroke-width="1.7"/>\n'
     else:
-        s += f'    <path d="M{f(-5.5 + mx)},-202.2 Q{f(mx)},-198.6 {f(5.5 + mx)},-202.2" fill="none" stroke-width="1.8"/>\n'
+        s += f'    <path d="M{f(-6 + mx)},-203 Q{f(mx)},-197.8 {f(6 + mx)},-203" fill="none" stroke-width="1.8"/>\n'
+        s += f'    <path d="M{f(-7.2 + mx)},-204.4 L{f(-6.2 + mx)},-202.8 M{f(7.2 + mx)},-204.4 L{f(6.2 + mx)},-202.8" fill="none" stroke="#9A6A4C" stroke-width="1.1"/>\n'
     s += '    <path d="M-2.5,-196.6 Q0,-195.6 2.5,-196.6" fill="none" stroke="#9A6A4C" stroke-width="1.2"/>\n'
     return s + '    </g>\n'
 
@@ -648,31 +672,44 @@ def legs(who):
 def john_head(look='front', expr='smile'):
     dx, dy = LOOKS[look]
     s = '    <g class="head">\n'
+    s += '    ' + john_pencil()
     s += f'    <ellipse cx="-18.5" cy="-86" rx="3.4" ry="5.4" fill="{SKIN_JOHN}"/><ellipse cx="18.5" cy="-86" rx="3.4" ry="5.4" fill="{SKIN_JOHN}"/>\n'
     s += f'    <path d="M-18,-90 C-18,-106 -10,-112 0,-112 C10,-112 18,-106 18,-90 C18,-74 12,-62 0,-62 C-12,-62 -18,-74 -18,-90 Z" fill="{SKIN_JOHN}"/>\n'
     s += f'    <path d="M-18.5,-91 C-20,-108 -10,-115 0,-115 C10,-115 20,-108 18.5,-91 C16,-99 10,-103 0,-103 C-10,-103 -16,-99 -18.5,-91 Z" fill="{HAIR_JOHN}"/>\n'
-    s += f'    <path d="M-18,-88 C-18.5,-70 -10,-59 0,-59 C10,-59 18.5,-70 18,-88 C16,-80 12,-76 8,-75.5 C4,-78 -4,-78 -8,-75.5 C-12,-76 -16,-80 -18,-88 Z" fill="{BEARD_JOHN}"/>\n'
-    s += f'    <path d="M-8,-76 Q0,-81 8,-76 Q4,-74.5 0,-75.5 Q-4,-74.5 -8,-76 Z" fill="{BEARD_JOHN}" stroke-width="1.2"/>\n'
+    # a trimmed beard that leaves his cheeks showing, a little lighter than ink so the face is not a dark mask
+    s += f'    <path d="M-18,-83 C-18.5,-69 -10,-59 0,-59 C10,-59 18.5,-69 18,-83 C16.5,-77.5 12.5,-75.2 8,-74.8 C4,-77.2 -4,-77.2 -8,-74.8 C-12.5,-75.2 -16.5,-77.5 -18,-83 Z" fill="{BEARD_JOHN}"/>\n'
+    s += f'    <path d="M-8,-75.5 Q0,-80 8,-75.5 Q4,-74 0,-75 Q-4,-74 -8,-75.5 Z" fill="{BEARD_JOHN}" stroke-width="1.2"/>\n'
+    s += '    <path d="M-13,-70 C-12,-65 -8,-62.5 -5,-62 M13,-70 C12,-65 8,-62.5 5,-62" fill="none" stroke="#5A463A" stroke-width="1.1" stroke-linecap="round"/>\n'
+    s += '    <path d="M-12,-107 C-6,-111 5,-111.5 12,-106.5" fill="none" stroke="#5A463A" stroke-width="1.5" stroke-linecap="round"/>\n'
     if expr == 'talk':
         s += '    <path d="M-5,-72.5 Q0,-71 5,-72.5 Q3,-66.5 0,-66.5 Q-3,-66.5 -5,-72.5 Z" fill="#5A2320" stroke="#E2C9B8" stroke-width="1.2"/>\n'
     elif expr == 'frown':
-        s += '    <path d="M-4.5,-69.5 Q0,-72.5 4.5,-69.5" fill="none" stroke="#E2C9B8" stroke-width="1.5"/>\n'
+        s += '    <path d="M-4.5,-70 Q0,-71.6 4.5,-70" fill="none" stroke="#E2C9B8" stroke-width="1.5"/>\n'
     else:
-        s += '    <path d="M-5,-71.5 Q0,-68.5 5,-71.5" fill="none" stroke="#E2C9B8" stroke-width="1.5"/>\n'
-    s += f'    <path d="M-1.5,-88 Q-4.5,-80 -1,-79 Q2,-78.5 3.5,-80.5" fill="{SKIN_JOHN_DK}" stroke-width="1.5"/>\n'
-    # horn-rimmed glasses, the lenses read as the whites of his eyes
+        s += '    <path d="M-5.5,-72.5 Q0,-71.2 5.5,-72.5 Q4.2,-67.2 0,-67.2 Q-4.2,-67.2 -5.5,-72.5 Z" fill="#F6EFE4" stroke="#17110D" stroke-width="1.1"/>\n'
+        s += '    <path d="M-5.5,-72.5 Q0,-71.2 5.5,-72.5" fill="none" stroke="#17110D" stroke-width="1.1"/>\n'
+    s += f'    <path d="M-1.5,-87 Q-4.2,-80.5 -1,-79.5 Q2,-79 3.2,-81" fill="{SKIN_JOHN_DK}" stroke-width="1.4"/>\n'
+    s += '    <ellipse cx="-12.4" cy="-82" rx="3.4" ry="2" fill="#D9806A" fill-opacity="0.3" stroke="none"/><ellipse cx="12.4" cy="-82" rx="3.4" ry="2" fill="#D9806A" fill-opacity="0.3" stroke="none"/>\n'
+    # horn-rimmed glasses; behind the lenses a warm brown iris, a catch-light, a relaxed lid
     s += '    <path d="M-2.5,-92 Q0,-94 2.5,-92" fill="none" stroke="#2B1A10" stroke-width="2.2"/>\n'
     s += '    <path d="M-14.5,-93 L-18.5,-90 M14.5,-93 L18.5,-90" fill="none" stroke="#2B1A10" stroke-width="2"/>\n'
     for x in (-8.5, 8.5):
+        ix, iy = x + max(-1.5, min(1.5, dx * 0.85)), -92.2 + max(-1.2, min(1.2, dy * 0.85))
         s += f'    <rect x="{x - 6}" y="-98" width="12" height="11" rx="3.5" fill="#FFFFFF" stroke="#2B1A10" stroke-width="2.6"/>\n'
-        s += f'    <circle cx="{f(x + dx)}" cy="{f(-92.3 + dy)}" r="1.9" fill="{INK}" stroke="none"/>\n'
+        s += (f'    <circle cx="{f(ix)}" cy="{f(iy)}" r="2.7" fill="{IRIS_JOHN}" stroke="none"/><circle cx="{f(ix)}" cy="{f(iy)}" r="1.3" fill="{INK}" stroke="none"/>'
+              f'<circle cx="{f(ix + 1)}" cy="{f(iy - 1)}" r="0.9" fill="#FFFFFF" stroke="none"/>\n')
     s += f'    <g class="blink" opacity="0"><rect x="-13.2" y="-96.7" width="9.4" height="8.4" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/><rect x="3.8" y="-96.7" width="9.4" height="8.4" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/>'
-    s += '<path d="M-13,-91.5 L-4,-91.5 M4,-91.5 L13,-91.5" stroke-width="1.4"/></g>\n'
-    brow = {'frown': ('M-14,-101 L-4,-99', 'M4,-99 L14,-101'), 'talk': ('M-14,-102.5 L-4,-103.5', 'M4,-103.5 L14,-102.5')}.get(
-        expr, ('M-14,-101.5 L-4,-102.5', 'M4,-102.5 L14,-101.5'))
-    s += f'    <path d="{brow[0]} {brow[1]}" fill="none" stroke-width="2.6"/>\n'
-    s += f'    <g>{"".join(tube([(10, -103), (30, -90)], 3.2, "#E8C34A", ow=1.3))}<path d="M28.5,-91 L33,-88 L30.5,-92.5 Z" fill="#3A2A18" stroke-width="0.8"/><path d="M10,-103 L13,-101" stroke="#E98A8A" stroke-width="3.2"/></g>\n'
+    s += '<path d="M-12.6,-90.6 Q-8.5,-88.4 -4.4,-90.6 M4.4,-90.6 Q8.5,-88.4 12.6,-90.6" fill="none" stroke-width="1.4"/></g>\n'
+    brow = {'frown': ('M-14,-99.6 Q-9,-103.4 -4,-103', 'M4,-103 Q9,-103.4 14,-99.6'), 'talk': ('M-14,-102.5 Q-9,-105.5 -4,-104', 'M4,-104 Q9,-105.5 14,-102.5')}.get(
+        expr, ('M-14,-101.4 Q-9,-104.4 -4,-103', 'M4,-103 Q9,-104.4 14,-101.4'))
+    s += f'    <path d="{brow[0]} {brow[1]}" fill="none" stroke-width="2.4"/>\n'
     return s + '    </g>\n'
+
+
+def john_pencil():
+    """The pencil tucked behind John's ear (drawn before his head, so the ear and the hair hold it)."""
+    return (f'<g>{"".join(tube([(15, -96), (31, -105)], 3.2, "#E8C34A", ow=1.3))}'
+            '<path d="M29,-104 L32.4,-106 " stroke="#E98A8A" stroke-width="3.2" stroke-linecap="round"/></g>\n')
 
 
 def john_torso():
@@ -717,11 +754,16 @@ def group(who, x, y, s, inner, cls=None):
             f'stroke-linecap="round">\n{inner}  </g>\n')
 
 
+def breathing(body):
+    """His chest and head, one group: the page's CSS lets it rise and settle a hair, slowly, the way a man breathes."""
+    return '    <g class="breathe">\n' + body + '    </g>\n'
+
+
 def standing(who, x, look, expr, arm_specs, s=1.0, y=FLOOR_Y):
     """A man on his feet at (x, y), facing us."""
     oy = y if who == 'james' else y - JOHN_FEET * s
     torso = james_torso() if who == 'james' else john_torso()
-    inner = legs(who) + torso + head(who, look, expr) + arms(who, arm_specs)
+    inner = legs(who) + breathing(torso + head(who, look, expr)) + arms(who, arm_specs)
     shadow = f'  <ellipse cx="{f(x)}" cy="{f(y + 1)}" rx="{f(34 * s)}" ry="{f(6 * s)}" fill="#1F4245"/>\n'
     return shadow + group(who, x, oy, s, inner, cls=who)
 
@@ -730,7 +772,7 @@ def seated(who, look, expr):
     """A man in the chair behind the desk: his body (drawn before the desk). His arms come after the desk: seated_arms."""
     x, y = JAMES_SEAT if who == 'james' else JOHN_SEAT
     torso = james_torso() if who == 'james' else john_torso()
-    return group(who, x, y, 1.0, torso + head(who, look, expr), cls=who)
+    return group(who, x, y, 1.0, breathing(torso + head(who, look, expr)), cls=who)
 
 
 def seated_arms(who, specs):
@@ -808,10 +850,10 @@ def james_side_head(expr='smile'):
           f'-2,-233 C-8,-233 -12,-231 -14,-228 Z" fill="{HAIR_JAMES}"/>\n')
     s += '    <path d="M6,-230 L11,-226 L10,-221 Z" fill="#B3ADA5" stroke-width="1.2"/>\n'
     s += f'    <path d="M3,-221 C9,-224 11,-212 4,-210 Z" fill="{SKIN_JAMES}" stroke-width="1.8"/><path d="M5,-218 Q7.5,-216 5.5,-213" fill="none" stroke-width="1.1"/>\n'
-    s += '    <ellipse cx="-8" cy="-222" rx="3.2" ry="4.8" fill="#FFFFFF" stroke-width="1.8"/>'
-    s += f'<circle cx="-9.6" cy="-221.6" r="1.5" fill="{INK}" stroke="none"/>\n'
-    s += f'    <g class="blink" opacity="0"><ellipse cx="-8" cy="-222" rx="3.2" ry="4.8" fill="{SKIN_JAMES}" stroke-width="1.8"/></g>\n'
-    s += '    <path d="M-13,-229.5 L-4,-230.5" fill="none" stroke-width="2.6"/>\n'
+    e, lid = eye_parts(-8, -222, -1.7, 0.2, IRIS_JAMES, SKIN_JAMES, rx=3.5, ry=4.5, ir=2.3)
+    s += '    ' + e + '\n'
+    s += f'    <g class="blink" opacity="0">{lid}</g>\n'
+    s += '    <path d="M-13,-229.5 Q-9,-231.6 -4,-230.4" fill="none" stroke-width="2.1"/>\n'
     s += '    <path d="M-14.2,-203.6 Q-11,-202.4 -8,-204" fill="none" stroke-width="1.7"/>\n'
     return s + '    </g>\n'
 
@@ -828,6 +870,8 @@ def james_side_torso():
 
 def john_side_head(expr='smile'):
     s = '    <g class="head">\n'
+    # the pencil behind his ear: its eraser end shows past the back of his head
+    s += f'    <g>{"".join(tube([(6, -97), (21, -105)], 3.2, "#E8C34A", ow=1.3))}<path d="M19.6,-104.2 L22.4,-105.7" stroke="#E98A8A" stroke-width="3.2" stroke-linecap="round"/></g>\n'
     s += f'    <path d="M-6,-66 L8,-66 L9,-52 L-7,-52 Z" fill="{SKIN_JOHN}"/>\n'
     s += (f'    <path d="M16,-92 C17,-76 12,-64 2,-61 C-6,-59 -12,-62 -15,-68 L-16,-76 L-17,-80 L-21,-83 L-17,-88 L-16,-96 '
           f'C-15,-106 -8,-112 1,-112 C10,-112 16,-104 16,-92 Z" fill="{SKIN_JOHN}"/>\n')
@@ -838,10 +882,12 @@ def john_side_head(expr='smile'):
     s += f'    <path d="M4,-92 C10,-95 12,-83 5,-81 Z" fill="{SKIN_JOHN}" stroke-width="1.8"/>\n'
     s += '    <path d="M-6,-93 L6,-90" fill="none" stroke="#2B1A10" stroke-width="2"/>\n'
     s += '    <rect x="-17" y="-98" width="11" height="11" rx="3.5" fill="#FFFFFF" stroke="#2B1A10" stroke-width="2.6"/>\n'
-    s += f'    <circle cx="-14.2" cy="-92.4" r="1.9" fill="{INK}" stroke="none"/>\n'
-    s += f'    <g class="blink" opacity="0"><rect x="-15.6" y="-96.6" width="8.2" height="8.2" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/></g>\n'
-    s += '    <path d="M-17,-102 L-7,-103" fill="none" stroke-width="2.6"/>\n'
-    s += f'    <g>{"".join(tube([(2, -104), (20, -92)], 3.2, "#E8C34A", ow=1.3))}<path d="M18.6,-93 L23,-90 L20.4,-94.6 Z" fill="#3A2A18" stroke-width="0.8"/></g>\n'
+    s += (f'    <circle cx="-13.4" cy="-92" r="2.6" fill="{IRIS_JOHN}" stroke="none"/><circle cx="-13.4" cy="-92" r="1.3" fill="{INK}" stroke="none"/>'
+          '<circle cx="-12.4" cy="-93" r="0.9" fill="#FFFFFF" stroke="none"/>\n')
+    s += f'    <path d="M-15.7,-96.8 L-7.3,-96.8 L-7.3,-95.6 Q-11.5,-94.8 -15.7,-95.6 Z" fill="{SKIN_JOHN}" stroke="none"/>\n'
+    s += (f'    <g class="blink" opacity="0"><rect x="-15.6" y="-96.6" width="8.2" height="8.2" rx="2.4" fill="{SKIN_JOHN}" stroke="none"/>'
+          '<path d="M-15,-90.6 Q-11.5,-88.4 -8,-90.6" fill="none" stroke-width="1.4"/></g>\n')
+    s += '    <path d="M-17,-101.5 Q-12,-104.4 -7,-103" fill="none" stroke-width="2.4"/>\n'
     return s + '    </g>\n'
 
 
@@ -868,12 +914,19 @@ def walker(who, x, holding, y=FLOOR_Y):
         hold = glass(H[0] - 14, H[1] + 9, 1.2)
         near = arm(S, E, H, shirt, skin, 'wrap', ang=180, flip=-1, hold=hold)
     elif holding == 'sheet':
-        sheet = (f'<g transform="rotate(14 {H[0] - 14} {H[1] - 22})" stroke="{INK}" stroke-width="1.4"><path d="M{H[0] - 26},{H[1] - 46} L{H[0] - 4},{H[1] - 46} L{H[0] - 4},{H[1] + 2} L{H[0] - 26},{H[1] + 2} Z" fill="#FFFFFF"/>'
-                 + ''.join(f'<path d="M{H[0] - 23},{H[1] - 40 + 8 * i} L{H[0] - 7},{H[1] - 40 + 8 * i}" stroke="#BFE3BC" stroke-width="3.2"/>' for i in range(5)) + '</g>')
+        # he reads the printout; the page turns its blank back to us, seen a little foreshortened (never its printed side)
+        hx, hy = H
+        sheet = (f'<g stroke="{INK}" stroke-width="1.6" stroke-linejoin="round">'
+                 f'<path d="M{hx - 4},{hy - 44} L{hx - 1},{hy - 44.5} L{hx},{hy + 1} L{hx - 3},{hy + 2} Z" fill="#D9D5C8"/>'
+                 f'<path d="M{hx - 19},{hy - 48} L{hx - 4},{hy - 44} L{hx - 3},{hy + 2} L{hx - 18},{hy - 2} Z" fill="#FBFAF5"/>'
+                 f'<path d="M{hx - 9},{hy - 45.6} L{hx - 8.5},{hy - 1}" fill="none" stroke="#E4E0D3" stroke-width="1.2"/></g>')
         near = arm(S, E, H, shirt, skin, 'pinch', ang=200, flip=1, hold=sheet)
-    else:  # the memo, open in his hands
-        folder = (f'<g stroke="{INK}" stroke-width="2"><path d="M{H[0] - 30},{H[1] - 34} L{H[0] - 4},{H[1] - 30} L{H[0] - 2},{H[1] + 2} L{H[0] - 28},{H[1] - 2} Z" fill="{MANILA}"/>'
-                  f'<path d="M{H[0] - 26},{H[1] - 24} L{H[0] - 8},{H[1] - 22} M{H[0] - 26},{H[1] - 16} L{H[0] - 10},{H[1] - 14}" stroke="#8A8A8A" stroke-width="1.2"/></g>')
+    else:  # the memo in its manila folder, held open in his hand with its blank back to us
+        hx, hy = H
+        folder = (f'<g stroke="{INK}" stroke-width="1.8" stroke-linejoin="round">'
+                  f'<path d="M{hx - 4},{hy - 36} L{hx - 1},{hy - 36.5} L{hx},{hy + 1} L{hx - 3},{hy + 2} Z" fill="#FBFAF5"/>'
+                  f'<path d="M{hx - 21},{hy - 40} L{hx - 4},{hy - 36} L{hx - 3},{hy + 2} L{hx - 20},{hy - 2} Z" fill="{MANILA}"/>'
+                  f'<path d="M{hx - 21},{hy - 40} L{hx - 13},{hy - 38.2} L{hx - 12.6},{hy - 34} L{hx - 20.6},{hy - 36} Z" fill="{MANILA_DK}" stroke-width="1.2"/></g>')
         near = arm(S, E, H, shirt, skin, 'pinch', ang=200, flip=1, hold=folder)
     inner = walk_frames(who) + f'    <g class="bob">\n{body}{near}    </g>\n'
     shadow = f'  <ellipse cx="{f(x)}" cy="{f(y + 1)}" rx="26" ry="5.5" fill="#1F4245"/>\n'
@@ -982,11 +1035,11 @@ def seat_arms(stage, who):
     if stage == 'tim':
         return typing(who, cls=False)
     if stage == 'flowchart':
-        Hp, Hc = (-15, -22), (16, -54)
+        Hp, Hc = (-15, -22), (18, -44)
         return [A('L', (-40, -8), Hp, 'wrap', ang=0, hold=pail(-6.5, -10, 0.9, open_=True)),
-                A('R', (42, -8), Hc, 'fist', ang=-100, flip=1, hold='<path d="M14,-58 L4,-78 M18,-58 L10,-79" fill="none" stroke="#C49A62" stroke-width="2"/>')]
+                A('R', (42, -8), Hc, 'fist', ang=-100, flip=1, hold='<path d="M15,-56 L8,-69 M19,-56 L13,-69" fill="none" stroke="#C49A62" stroke-width="2"/>')]
     if stage == 'failed':
-        return [A('L', (-52, -44), (-12, -96), 'flat', ang=-30, flip=1), typing('john', cls=False)[1]]
+        return [A('L', (-54, -50), (-23, -106), 'flat', ang=-34, flip=1), typing('john', cls=False)[1]]
     return []
 
 
@@ -1030,7 +1083,7 @@ def scene(stage):
     elif stage == 'consulting':
         out += standing('john', 478, 'right', 'talk', [hanging('john', 'L'), A('R', (54, -60), (56, -96), 'point', ang=-92, flip=1, cls='nod')])
         Hg = (30, -120)
-        out += standing('james', 584, 'left', 'listen', [A('L', (-36, -146), (-6, -191), 'fist', ang=-70, flip=1),
+        out += standing('james', 584, 'left', 'listen', [hanging('james', 'L'),
                                                          A('R', (40, -144), Hg, 'wrap', ang=180, flip=-1, hold=held_glass(Hg, 180), watch=True)])
     elif stage == 'spec':
         out += walker('james', 592, 'sheet')
@@ -1040,8 +1093,8 @@ def scene(stage):
         Hm = (-42, -232)
         out += standing('james', 598, 'left', 'talk', [A('L', (-54, -196), Hm, 'wrap', ang=180, flip=-1, cls='toast', hold=held_glass(Hm, 180)), hanging('james', 'R')])
     elif stage == 'failed':
-        out += standing('james', 556, 'left', 'stern', [A('L', (-48, -146), (-26, -116), 'fist', ang=45, flip=1),
-                                                        A('R', (48, -146), (26, -116), 'fist', ang=135, flip=-1, watch=True)])
+        out += standing('james', 528, 'left', 'stern', [hanging('james', 'L'),
+                                                        A('R', (48, -142), (64, -128), 'open', ang=-10, flip=-1, watch=True)])
 
     if stage == 'tim':
         out += bubble(24, 118, 176, ['MEMO FROM PATRICK.', "IT'S FOR YOU TWO."], (88, 180))
@@ -1064,11 +1117,11 @@ def door():
     roll = (f'<g stroke="{INK}" stroke-width="1.6"><path d="M-16,-36 L30,-14 L26,-4 L-20,-26 Z" fill="#FFFFFF"/>'
             '<path d="M-14,-31 L26,-12 M-16,-27 L24,-8" stroke="#BFE3BC" stroke-width="2.6"/></g>')
     # each man's inside hand is busy on his own side of the doorway: James straightens his tie, John holds the spec
-    john = standing('john', 48, 'front', 'smile', [A('L', (-42, -10), (-12, -30), 'wrap', ang=20, hold=roll),
-                                                   A('R', (44, -10), (18, -14), 'wrap', ang=200, flip=1)], y=0)
+    john = standing('john', 45, 'front', 'smile', [A('L', (-42, -10), (-12, -30), 'wrap', ang=20, hold=roll),
+                                                   A('R', (49, -14), (49, 10), 'flat', ang=90, flip=-1)], y=0)
     Hg = (-25, -152)
     james = standing('james', -42, 'front', 'smile', [A('L', (-40, -144), Hg, 'wrap', ang=0, hold=held_glass(Hg, 0)),
-                                                      A('R', (38, -150), (8, -178), 'pinch', ang=-160, flip=1)], y=0)
+                                                      A('R', (42, -140), (41, -113), 'flat', ang=92, flip=-1)], y=0)
     strip = lambda s: s.split('\n', 1)[1]  # no floor shadows in the doorway
     out += strip(john) + strip(james)
     return out + '</svg>\n'

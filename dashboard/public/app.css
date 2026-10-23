@@ -115,18 +115,30 @@ h1 { margin: 2px 0 0; font: 700 clamp(1.3rem, 4.4vw, 2.05rem)/1.12 var(--display
 @keyframes cw-head { to { transform: translateX(22px); } }
 .scene .feed { transform-box: fill-box; transform-origin: 50% 0; animation: cw-feed 7s steps(14, end) infinite; }
 @keyframes cw-feed { 0% { transform: scaleY(.15); } 85% { transform: none; } 100% { transform: none; } }
-.scene .blink { animation: cw-lids 5.5s steps(1, end) infinite; }
+.scene .blink { transform-box: fill-box; transform-origin: 50% 0; animation: cw-lids 5.5s ease-in-out infinite; }
 .scene .james .blink { animation-delay: 1.9s; }
-@keyframes cw-lids { 0%, 94% { opacity: 0; } 95%, 97% { opacity: 1; } 98% { opacity: 0; } }
+/* A soft blink: the lid comes down over the eye, rests a breath, and lifts (about 0.35 s), not a flash. */
+@keyframes cw-lids {
+  0%, 93% { opacity: 0; transform: scaleY(.15); }
+  94.5% { opacity: 1; transform: scaleY(.65); }
+  96% { opacity: 1; transform: scaleY(1); }
+  97.5% { opacity: 1; transform: scaleY(.55); }
+  99%, 100% { opacity: 0; transform: scaleY(.15); }
+}
+/* Breathing: chest and head rise a hair and settle (4.4 s a breath); the two of them are out of step. */
+.scene .breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: cw-breathe 4.4s ease-in-out infinite; }
+.scene .john .breathe { animation-delay: -2.1s; }
+@keyframes cw-breathe { 0%, 100% { transform: none; } 50% { transform: scaleY(1.013); } }
 .scene .twinkle { animation: cw-twinkle 3.2s steps(1, end) infinite; }
 @keyframes cw-twinkle { 50% { opacity: .15; } }
 /* Pacing: a man walks his beat in front of the window, side-on, and turns round at each end (about his own feet: the
    SVG gives transform-origin). 104 px each way in 2.4 s keeps step with his legs. The clock and the window are moved
    by app.js, not here. */
 .scene .pace { animation: cw-pace 4.8s linear infinite; }
+/* He turns round at each end over a fifth of a second (the flip passes through edge-on) instead of snapping. */
 @keyframes cw-pace {
-  0% { transform: translateX(0) scaleX(1); } 49.99% { transform: translateX(-104px) scaleX(1); }
-  50% { transform: translateX(-104px) scaleX(-1); } 99.99% { transform: translateX(0) scaleX(-1); } 100% { transform: translateX(0) scaleX(1); }
+  0% { transform: translateX(0) scaleX(1); } 48% { transform: translateX(-104px) scaleX(1); }
+  52% { transform: translateX(-104px) scaleX(-1); } 98% { transform: translateX(0) scaleX(-1); } 100% { transform: translateX(0) scaleX(1); }
 }
 .scene .draw { stroke-dasharray: 160; stroke-dashoffset: 160; animation: cw-draw 10s ease-in-out infinite; }
 .scene .draw.d2 { animation-delay: .5s; } .scene .draw.d3 { animation-delay: 1s; } .scene .draw.d4 { animation-delay: 1.5s; }
